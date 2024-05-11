@@ -11,7 +11,7 @@ def press_18_keys():
 	if report_count == 3:
 		modifier  = 0b00000000
 		key_codes = bytes([keycode for keycode in range(4, 23)])
-		key_data  = bytearray([modifier , 0x00]) + bytes(6)
+		key_data  = bytearray([modifier, 0x00]) + bytes(6)
 
 		for count in range(report_count):
 			for index, key_index in enumerate(range(2, 8)):
@@ -19,7 +19,7 @@ def press_18_keys():
 
 			keyboard.send_kb_key_down(key_data, count)
 
-		key_data  = bytearray([modifier , 0x00]) + bytes(6)
+		key_data  = bytearray([modifier, 0x00]) + bytes(6)
 
 		for count in range(report_count):
 			keyboard.send_kb_key_up(key_data, count)
@@ -28,7 +28,7 @@ def press_random_key():
 	modifier  = 0b00000000 # RGUI, RAlt, RShift, RCtrl, LGUI, LAlt, LShift, LCtrl
 	key_code  = random.randint(4, 39)
 	key_index = random.randint(2, 7)
-	key_data  = bytearray([modifier , 0x00]) + bytes(6)
+	key_data  = bytearray([modifier, 0x00]) + bytes(6)
 	report_id = random.randint(0, report_count - 1)
 
 	print(f'report_id: {report_id}, key_index: {key_index}, key_code: {key_code}')

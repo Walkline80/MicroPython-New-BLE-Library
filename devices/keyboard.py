@@ -18,17 +18,17 @@ class BLEKeyboard104(object):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
 	def __init__(self, device_name='MP_KB104', report_map: bytes = None, report_count: int = 1):
-		self.__ble = bluetooth.BLE()
-		self.__ble_values = BLEValues()
-		self.__device_name = device_name
-		self.__report_map = report_map or REPORT_MAP_DATA
+		self.__ble          = bluetooth.BLE()
+		self.__ble_values   = BLEValues()
+		self.__device_name  = device_name
+		self.__report_map   = report_map or REPORT_MAP_DATA
 		self.__report_count = report_count
-		self.__appearance = 961 # or (0x00f, 0x01)
+		self.__appearance   = 961 # or (0x00f, 0x01)
 		self.__conn_handles = set()
 
-		self.__write = self.__ble.gatts_write
-		self.__read = self.__ble.gatts_read
-		self.__notify = self.__ble.gatts_notify
+		self.__write    = self.__ble.gatts_write
+		self.__read     = self.__ble.gatts_read
+		self.__notify   = self.__ble.gatts_notify
 		self.__indicate = self.__ble.gatts_indicate
 
 		self.__secrets = {}
@@ -303,7 +303,7 @@ class BLEKeyboard104(object):
 		# HumanInterfaceDevice values
 		# self.__ble_values.human_interface_device.hid_information = [0x0111, 0x00, 0b00]
 		# self.__ble_values.human_interface_device.protocol_mode   = 1
-		self.__ble_values.human_interface_device.report_count = self.__report_count
+		self.__ble_values.human_interface_device.report_count    = self.__report_count
 
 		self.__write(self.__handle_hid_information, self.__ble_values.human_interface_device.hid_information)
 		self.__write(self.__handle_report_map,      bytes(self.__report_map))
@@ -317,13 +317,13 @@ class BLEKeyboard104(object):
 
 		random.seed(random.randint(-2**16, 2**16))
 
-		self.__ble_values.battery_service.battery_level = value or int(random.randint(1, 80))
+		self.__ble_values.battery_service.battery_level = value or random.randint(1, 80)
 		self.__write(self.__handle_battery_level, self.__ble_values.battery_service.battery_level)
 
 		for conn_handle in self.__conn_handles:
 			self.__notify(conn_handle, self.__handle_battery_level)
 
-	def send_kb_key_down(self, key_data, report_id: int = 0):
+	def send_kb_key_down(self, key_data: tuple[bytes, bytearray], report_id: int = 0):
 		if self.__conn_handles is None:
 			return
 
@@ -332,7 +332,7 @@ class BLEKeyboard104(object):
 		for conn_handle in self.__conn_handles:
 			self.__notify(conn_handle, self.__handle_reports[report_id])
 
-	def send_kb_key_up(self, key_data, report_id: int = 0):
+	def send_kb_key_up(self, key_data: tuple[bytes, bytearray], report_id: int = 0):
 		if self.__conn_handles is None:
 			return
 
