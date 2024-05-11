@@ -1,39 +1,41 @@
-# MicroPython BLE HID 控制器
+<h1 align="center">MicroPython BLE HID 控制器</h1>
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+<p align="center"><img src="https://img.shields.io/badge/Licence-MIT-green.svg?style=for-the-badge" /></p>
 
-#### 软件架构
-软件架构说明
+## 项目介绍
 
+## 测试方法
 
-#### 安装教程
+### 键盘测试
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+使用`ab 工具`上传键盘所需文件，然后运行`tests/test_keyboard.py`文件
 
-#### 使用说明
+```bash
+# 上传文件
+$ ab abconfig_kbd104
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+# 进入交互模式
+$ ab --repl
 
-#### 参与贡献
+# 运行测试脚本
+# ctrl + r，输入 test\test_keyboard.py 前边的序号并回车
+```
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+之后使用电脑或手机正常搜索连接键盘，连接成功后使用开发板上的`BOOT`按键模拟键盘按键操作即可。
 
+> 默认设备名称：`MP_KB104`
 
-#### 特技
+也可以自行修改`tests/test_keyboard.py`文件对应内容以修改按键引脚。
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## 参考资料
+
+* `ab 工具`安装及使用说明请访问 [AMPY Batch Tool](https://gitee.com/walkline/a-batch-tool) 查看
+
+## 合作交流
+
+* 联系邮箱：<walkline@163.com>
+* QQ 交流群：
+	* 走线物联：[163271910](https://jq.qq.com/?_wv=1027&k=xtPoHgwL)
+	* 扇贝物联：[31324057](https://jq.qq.com/?_wv=1027&k=yp4FrpWh)
+
+<p align="center"><img src="https://gitee.com/walkline/WeatherStation/raw/docs/images/qrcode_walkline.png" width="300px" alt="走线物联"><img src="https://gitee.com/walkline/WeatherStation/raw/docs/images/qrcode_bigiot.png" width="300px" alt="扇贝物联"></p>
