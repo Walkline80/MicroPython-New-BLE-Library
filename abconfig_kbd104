@@ -1,0 +1,5 @@
+ble/
+drivers/
+devices/keyboard.py
+hid/reportmap/keyboard.py
+hid/reportmap/keyboard3.py
