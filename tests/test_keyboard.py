@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
 	mode = choose_an_option('Keyboard Test Mode', options)
 
-	if mode:
+	if mode is not None:
 		test = KeyboardTest(
 			mode=mode,
 			button_pin=9
