@@ -6,9 +6,11 @@
 
 ## 测试方法
 
+	特别注意：每做一次不同类型的测试时，必须取消配对后重新绑定设备。
+
 ### 键盘测试
 
-使用`ab 工具`上传键盘所需文件，然后运行`tests/test_keyboard.py`文件
+使用`ab 工具`上传键盘所需文件，然后运行`tests/test_keyboard.py`文件。
 
 ```bash
 # 上传文件
@@ -25,7 +27,7 @@ $ ab --repl
 
 > 默认设备名称：`MP_KB104`
 
-也可以自行修改`tests/test_keyboard.py`文件对应内容以修改按键引脚。
+可以自行修改`tests/test_keyboard.py`文件对应内容以修改按键引脚。
 
 ## 参考资料
 
