@@ -3,35 +3,38 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-ble-hid-controller
 """
 import random
-from devices.keyboard import BLEKeyboard104
 from drivers.button import Button
+import time
 
 
-class KeyboardTest(object):
-	MODE_ONE_REPORT    = 0
-	MODE_THREE_REPORTS = 1
-	MODE_PRESS_18_KEYS = 2
+MODE_ONE_REPORT    = 0
+MODE_THREE_REPORTS = 1
+MODE_PRESS_18_KEYS = 2
+MODE_PRESS_95_KEYS = 3
 
-	def __init__(self, mode: int = MODE_THREE_REPORTS, button_pin: int = 9):
+
+class KeyboardTest1(object):
+	def __init__(self, mode: int = MODE_ONE_REPORT, button_pin: int = 9):
 		self.__last_key_code  = None
 		self.__last_key_index = None
 		self.__last_report_id = None
 
-		self.__report_count = 3 if mode in (self.MODE_THREE_REPORTS, self.MODE_PRESS_18_KEYS) else 1
+		self.__report_count = 3 if mode in (MODE_THREE_REPORTS, MODE_PRESS_18_KEYS) else 1
 
 		if self.__report_count == 3:
-			from hid.reportmap.keyboard3 import REPORT_MAP_DATA
+			from devices.hid.keyboard_1.reportmap.keyboard2 import REPORT_MAP_DATA
 
 		self.__keyboard = BLEKeyboard104(
 			report_map=REPORT_MAP_DATA if self.__report_count == 3 else None,
-			report_count=self.__report_count
+			report_count=self.__report_count,
+			led_status_cb=self.__led_status_cb
 		)
 
 		self.__button = Button(
 			pin=[button_pin],
-			hold_cb=self.__button_down_cb if mode in (self.MODE_ONE_REPORT, self.MODE_THREE_REPORTS) else None,
-			release_cb=self.__button_up_cb if mode in (self.MODE_ONE_REPORT, self.MODE_THREE_REPORTS) else None,
-			click_cb=self.__button_click_cb if mode in (self.MODE_PRESS_18_KEYS,) else None
+			hold_cb=self.__button_down_cb if mode in (MODE_ONE_REPORT, MODE_THREE_REPORTS) else None,
+			release_cb=self.__button_up_cb if mode in (MODE_ONE_REPORT, MODE_THREE_REPORTS) else None,
+			click_cb=self.__button_click_cb if mode in (MODE_PRESS_18_KEYS,) else None
 		)
 
 		self.__keyboard.update_battery_level()
@@ -73,6 +76,48 @@ class KeyboardTest(object):
 		for count in range(self.__report_count):
 			self.__keyboard.send_kb_key_up(key_data, count)
 
+	def __led_status_cb(self, num_lock, caps_lock, scroll_lock):
+		print("   num_lock:", num_lock)
+		print("  caps_lock:", caps_lock)
+		print("scroll_lock:", scroll_lock)
+
+
+class KeyboardTest2(object):
+	def __init__(self, button_pin: int = 9):
+		self.__keyboard = BLEKeyboard104(
+			led_status_cb=self.__led_status_cb
+		)
+
+		self.__button = Button(
+			pin=[button_pin],
+			hold_cb=self.__button_down_cb,
+			release_cb=self.__button_up_cb,
+		)
+
+		self.__keyboard.update_battery_level()
+
+	def __button_down_cb(self, pin: int):
+		modifier  = 0b00000000
+		key_data  = bytearray([modifier, 0x00]) + bytearray([0xff for _ in range(13)])
+
+		# 排除一些按键
+		key_data[8] = 0xdf # caps_lock
+		key_data[10] = 0xf3 # scroll_lock & print_screen
+		key_data[11] = 0x7f # num_lock
+
+		self.__keyboard.send_kb_key(key_data)
+
+	def __button_up_cb(self, pin: int):
+		modifier  = 0b00000000
+		key_data  = bytearray([modifier, 0x00]) + bytearray([0x00 for _ in range(13)])
+
+		self.__keyboard.send_kb_key(key_data)
+
+	def __led_status_cb(self, num_lock, caps_lock, scroll_lock):
+		print("   num_lock:", num_lock)
+		print("  caps_lock:", caps_lock)
+		print("scroll_lock:", scroll_lock)
+
 
 def choose_an_option(title, options):
 	print(f'\n{title}:')
@@ -104,16 +149,23 @@ def choose_an_option(title, options):
 
 
 if __name__ == '__main__':
+	button_pin = 9
+
 	options = [
 		'Using 1 HID report descriptor, randomly send a key code',
 		'Using 3 HID report descriptors, randomly send a key code',
-		'Using 3 HID report descriptors, send 18 key codes at once'
+		'Using 3 HID report descriptors, send 18 key codes at once',
+		'Using 1 HID report descriptor, send 95 key codes at once',
 	]
 
 	mode = choose_an_option('Keyboard Test Mode', options)
 
 	if mode is not None:
-		test = KeyboardTest(
-			mode=mode,
-			button_pin=9
-		)
+		if mode == MODE_PRESS_95_KEYS:
+			# 实际测试 92 键，测试时务必使用键盘检测工具
+			# https://key.motsuni.cn/
+			from devices.hid.keyboard_2.keyboard import BLEKeyboard104
+			test = KeyboardTest2(button_pin=button_pin)
+		else:
+			from devices.hid.keyboard_1.keyboard import BLEKeyboard104
+			test = KeyboardTest1(mode=mode, button_pin=button_pin)
