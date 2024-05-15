@@ -5,7 +5,8 @@ Gitee: https://gitee.com/walkline/micropython-ble-hid-controller
 import json
 import binascii
 from ble import *
-from hid.reportmap.keyboard import REPORT_MAP_DATA
+from .reportmap.keyboard1 import REPORT_MAP_DATA
+from ..hidprofile import KeyboardProfile
 
 
 def printf(msg, *args):
@@ -17,14 +18,20 @@ class BLEKeyboard104(object):
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
-	def __init__(self, device_name='MP_KB104', report_map: bytes = None, report_count: int = 1):
-		self.__ble          = bluetooth.BLE()
-		self.__ble_values   = BLEValues()
-		self.__device_name  = device_name
-		self.__report_map   = report_map or REPORT_MAP_DATA
-		self.__report_count = report_count
-		self.__appearance   = 961 # or (0x00f, 0x01)
-		self.__conn_handles = set()
+	def __init__(
+			self, device_name='MP_KB104',
+			report_map: bytes = None,
+			report_count: int = 1,
+			led_status_cb: function = None,
+		):
+		self.__ble           = bluetooth.BLE()
+		self.__ble_values    = BLEValues()
+		self.__device_name   = device_name
+		self.__report_map    = report_map or REPORT_MAP_DATA
+		self.__report_count  = report_count
+		self.__led_status_cb = led_status_cb
+		self.__appearance    = 961 # or (0x00f, 0x01)
+		self.__conn_handles  = set()
 
 		self.__write    = self.__ble.gatts_write
 		self.__read     = self.__ble.gatts_read
@@ -47,15 +54,17 @@ class BLEKeyboard104(object):
 
 		self.__ble.config(addr_mode=2, mtu=256)
 
-		generic_profile = GenericProfile()
-		hid_profile = HIDProfile(report_count)
+		generic_profile  = GenericProfile()
+		keyboard_profile = KeyboardProfile(report_count)
 
 		# 先由 __handle_reports 接收 reports 和 report_references 的 handle
 		# 然后 __handle_report_references 从 __handle_reports 中提取所需值
-		self.__handle_reports = [None for _ in range(hid_profile.report_count * 2)]
+		# 默认第一个用途页包含 2 个 report，第二个用于接收 led 指示灯状态
+		self.__handle_reports = [None for _ in range((keyboard_profile.report_count + 1) * 2)]
 		self.__handle_report_references = []
+		self.__handle_report_references_led = None
 
-		self.__register_services(generic_profile.get_services() + hid_profile.get_services())
+		self.__register_services(generic_profile.get_services() + keyboard_profile.get_services())
 		self.__setup_hid_values()
 
 		adv_payload = BLETools.generate_advertising_payload(
@@ -65,7 +74,7 @@ class BLEKeyboard104(object):
 		)
 
 		resp_payload = BLETools.generate_advertising_payload(
-			hid_profile.get_services_uuid()
+			keyboard_profile.get_services_uuid()
 		)
 
 		assert (len(adv_payload)  <= MAX_PAYLOAD_LENGTH) and\
@@ -109,31 +118,41 @@ class BLEKeyboard104(object):
 			),
 		) = self.__ble.gatts_register_services(services)
 
-		self.__handle_report_references.extend(self.__handle_reports[1::2])
-		self.__handle_reports = self.__handle_reports[::2]
+		temp_list = self.__handle_reports.copy()
+		self.__handle_reports = temp_list[::2]
+		self.__handle_report_references.append(temp_list[1])
+		self.__handle_report_references_led = temp_list[3]
+		self.__handle_report_references.extend(temp_list[4:][1::2])
 
 		if False:
-			print('\tdevice_name', self.__handle_device_name)
-			print('\tappearance', self.__handle_appearance)
-			print('\tppcp', self.__handle_ppcp)
-			print('\tmanufacturer_name', self.__handle_manufacturer_name)
-			print('\tmodel_number', self.__handle_model_number)
-			print('\tserial_number', self.__handle_serial_number)
-			print('\thardware_revision', self.__handle_hardware_revision)
-			print('\tfirmware_revision', self.__handle_firmware_revision)
-			print('\tsoftware_revision', self.__handle_software_revision)
-			print('\tpnp_id', self.__handle_pnp_id)
-			print('\tbattery_level', self.__handle_battery_level)
-			print('\thid_information',self.__handle_hid_information)
-			print('\treport_map',self.__handle_report_map)
-			print('\tprotocol_mode',self.__handle_protocol_mode)
+			print('- device_name:', self.__handle_device_name)
+			print('- appearance:', self.__handle_appearance)
+			print('- ppcp:', self.__handle_ppcp)
+			print('- manufacturer_name:', self.__handle_manufacturer_name)
+			print('- model_number:', self.__handle_model_number)
+			print('- serial_number:', self.__handle_serial_number)
+			print('- hardware_revision:', self.__handle_hardware_revision)
+			print('- firmware_revision:', self.__handle_firmware_revision)
+			print('- software_revision:', self.__handle_software_revision)
+			print('- pnp_id:', self.__handle_pnp_id)
+			print('- battery_level:', self.__handle_battery_level)
+			print('- hid_information:', self.__handle_hid_information)
+			print('- report_map:', self.__handle_report_map)
+			print('- protocol_mode:', self.__handle_protocol_mode)
 
 			self.__ble_values.human_interface_device.report_count = self.__report_count
 
-			for index in range(self.__report_count):
-				print(f'\treport{index}', self.__handle_reports[index])
-				print('\treport_reference', self.__handle_report_references[index],
-					self.__ble_values.human_interface_device.report_reference[index])
+			print(f'- report_0:', self.__handle_reports[0])
+			print(f'  - report_reference_input:', self.__handle_report_references[0],
+				self.__ble_values.human_interface_device.report_reference[0])
+			print(f'- report_0:', self.__handle_reports[1])
+			print(f'  - report_reference_led:', self.__handle_report_references_led,
+				self.__ble_values.human_interface_device.report_reference_led)
+
+			for index in range(1, self.__report_count):
+				print(f'- report_{index}:', self.__handle_reports[index + 1])
+				print(f'  - report_reference_input:', self.__handle_report_references[index],
+				self.__ble_values.human_interface_device.report_reference[index])
 
 		printf('Services Registered')
 
@@ -171,6 +190,13 @@ class BLEKeyboard104(object):
 				printf(f'GATTS Read Request [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
 
 			return GATTSErrorCode.NO_ERROR
+		elif event == IRQ.GATTS_WRITE:
+			conn_handle, attr_handle = data
+
+			printf(f'GATTS Write [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
+
+			if attr_handle in self.__handle_reports:
+				self.__parse_led_status(self.__read(attr_handle))
 		elif event == IRQ.CONNECTION_UPDATE:
 			conn_handle, interval, latency, supervision_timeout, status = data
 
@@ -310,7 +336,21 @@ class BLEKeyboard104(object):
 		self.__write(self.__handle_protocol_mode,   self.__ble_values.human_interface_device.protocol_mode)
 
 		for index in range(self.__report_count):
-			self.__write(self.__handle_report_references[index], self.__ble_values.human_interface_device.report_reference[index])
+			self.__write(self.__handle_report_references[index],
+				self.__ble_values.human_interface_device.report_reference[index]
+			)
+
+		self.__write(self.__handle_report_references_led, self.__ble_values.human_interface_device.report_reference_led)
+
+	def __parse_led_status(self, value: bytes):
+		value = int.from_bytes(value, 'little')
+
+		num_lock = (value >> 0) & 1
+		caps_lock = (value >> 1) & 1
+		scroll_lock = (value >> 2) & 1
+
+		if self.__led_status_cb is not None:
+			self.__led_status_cb(num_lock, caps_lock, scroll_lock)
 
 	def update_battery_level(self, value: int = None):
 		import random

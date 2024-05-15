@@ -17,8 +17,8 @@ Local Item:
 '''
 
 '''
-Key codes usage ids:
-	https://www.usb.org/sites/default/files/hut1_21.pdf @ page 82
+Keycode Usage ID:
+	https://www.usb.org/sites/default/files/hut1_5.pdf#page=90 @ page 90
 '''
 REPORT_MAP_DATA = [
 	0x05, 0x01,	# (G) Usage Page (Generic Desktop Ctrls)
@@ -34,12 +34,12 @@ REPORT_MAP_DATA = [
 	0x25, 0x01,	# (G)     Logical Maximum (1)
 	0x95, 0x08,	# (G)     Report Count (8)
 	0x75, 0x01,	# (G)     Report Size (1)
-	0x81, 0x02,	# (M)     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+	0x81, 0x02,	# (M)     Input (Data,Var,Abs)
 
 	# 保留字节
 	0x95, 0x01,	# (G)     Report Count (1)
 	0x75, 0x08,	# (G)     Report Size (8)
-	0x81, 0x03,	# (M)     Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+	0x81, 0x03,	# (M)     Input (Const,Var,Abs)
 
 	# 6 个按键键值
 	0x05, 0x07,	# (G)   Usage Page (Kbrd/Keypad)
@@ -49,18 +49,17 @@ REPORT_MAP_DATA = [
 	0x25, 0x65,	# (G)     Logical Maximum (101)
 	0x95, 0x06,	# (G)     Report Count (6)
 	0x75, 0x08,	# (G)     Report Size (8)
-	0x81, 0x00,	# (M)     Input (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+	0x81, 0x00,	# (M)     Input (Data,Array,Abs)
 
 	0x05, 0x08,	# (G)   Usage Page (LEDs)
 	0x95, 0x05,	# (G)   Report Count (5)
 	0x75, 0x01,	# (G)   Report Size (1)
 	0x19, 0x01,	# (L)   Usage Minimum (Num Lock)
 	0x29, 0x05,	# (L)   Usage Maximum (Kana)
-	0x91, 0x02,	# (M)   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+	0x91, 0x02,	# (M)   Output (Data,Var,Abs)
 
 	0x95, 0x01,	# (G)   Report Count (1)
 	0x75, 0x03,	# (G)   Report Size (3)
-	0x91, 0x03,	# (M)   Output (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-
+	0x91, 0x03,	# (M)   Output (Const,Var,Abs)
 	0xC0, 		# (M) End Collection
 ]
