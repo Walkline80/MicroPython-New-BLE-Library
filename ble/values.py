@@ -205,6 +205,10 @@ class BLEValues(object):
 		def report_reference(self):
 			return [pack('<BB', report_id, 1) for report_id in range(1, self.__report_count + 1)]
 
+		@property
+		def report_reference_led(self):
+			return pack('<BB', 1, 2)
+
 		# HID_CONTROL_POINT
 
 		@property
