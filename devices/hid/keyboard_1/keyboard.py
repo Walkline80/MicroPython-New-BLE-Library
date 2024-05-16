@@ -9,8 +9,8 @@ from .reportmap.keyboard1 import REPORT_MAP_DATA
 from ..hidprofile import KeyboardProfile
 
 
-def printf(msg, *args):
-	print(f'\033[1;37m[INFO]\033[0m {msg}' % args)
+def printf(msg, *args, **kwargs):
+	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 
 class BLEKeyboard104(object):
@@ -125,33 +125,33 @@ class BLEKeyboard104(object):
 		self.__handle_report_references.extend(temp_list[4:][1::2])
 
 		if False:
-			print('- device_name:', self.__handle_device_name)
-			print('- appearance:', self.__handle_appearance)
-			print('- ppcp:', self.__handle_ppcp)
-			print('- manufacturer_name:', self.__handle_manufacturer_name)
-			print('- model_number:', self.__handle_model_number)
-			print('- serial_number:', self.__handle_serial_number)
-			print('- hardware_revision:', self.__handle_hardware_revision)
-			print('- firmware_revision:', self.__handle_firmware_revision)
-			print('- software_revision:', self.__handle_software_revision)
-			print('- pnp_id:', self.__handle_pnp_id)
-			print('- battery_level:', self.__handle_battery_level)
-			print('- hid_information:', self.__handle_hid_information)
-			print('- report_map:', self.__handle_report_map)
-			print('- protocol_mode:', self.__handle_protocol_mode)
+			printf('- device_name:', self.__handle_device_name)
+			printf('- appearance:', self.__handle_appearance)
+			printf('- ppcp:', self.__handle_ppcp)
+			printf('- manufacturer_name:', self.__handle_manufacturer_name)
+			printf('- model_number:', self.__handle_model_number)
+			printf('- serial_number:', self.__handle_serial_number)
+			printf('- hardware_revision:', self.__handle_hardware_revision)
+			printf('- firmware_revision:', self.__handle_firmware_revision)
+			printf('- software_revision:', self.__handle_software_revision)
+			printf('- pnp_id:', self.__handle_pnp_id)
+			printf('- battery_level:', self.__handle_battery_level)
+			printf('- hid_information:', self.__handle_hid_information)
+			printf('- report_map:', self.__handle_report_map)
+			printf('- protocol_mode:', self.__handle_protocol_mode)
 
 			self.__ble_values.human_interface_device.report_count = self.__report_count
 
-			print(f'- report_0:', self.__handle_reports[0])
-			print(f'  - report_reference_input:', self.__handle_report_references[0],
+			printf(f'- report_0:', self.__handle_reports[0])
+			printf(f'  - report_reference_input:', self.__handle_report_references[0],
 				self.__ble_values.human_interface_device.report_reference[0])
-			print(f'- report_0:', self.__handle_reports[1])
-			print(f'  - report_reference_led:', self.__handle_report_references_led,
+			printf(f'- report_0:', self.__handle_reports[1])
+			printf(f'  - report_reference_led:', self.__handle_report_references_led,
 				self.__ble_values.human_interface_device.report_reference_led)
 
 			for index in range(1, self.__report_count):
-				print(f'- report_{index}:', self.__handle_reports[index + 1])
-				print(f'  - report_reference_input:', self.__handle_report_references[index],
+				printf(f'- report_{index}:', self.__handle_reports[index + 1])
+				printf(f'  - report_reference_input:', self.__handle_report_references[index],
 				self.__ble_values.human_interface_device.report_reference[index])
 
 		printf('Services Registered')
