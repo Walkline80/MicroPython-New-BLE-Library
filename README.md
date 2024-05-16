@@ -6,7 +6,7 @@
 
 ## 测试方法
 
-	特别注意：每做一次不同类型的测试时，必须取消配对后重新绑定设备。
+	特别注意：每做一次不同类型的测试时，必须取消配对后再运行测试程序。
 
 ### 键盘测试
 
@@ -23,11 +23,34 @@ $ ab --repl
 # ctrl + r，输入 test\test_keyboard.py 前边的序号并回车
 ```
 
-之后使用电脑或手机正常搜索连接键盘，连接成功后使用开发板上的`BOOT`按键模拟键盘按键操作即可。
+使用电脑或手机搜索并连接键盘，连接成功后使用开发板上的`BOOT`按键模拟键盘按键操作即可。
 
 > 默认设备名称：`MP_KB104`
 
 可以自行修改`tests/test_keyboard.py`文件对应内容以修改按键引脚。
+
+### UART 测试
+
+使用`ab 工具`上传`UART`所需文件，然后运行`tests/test_uart.py`文件。
+
+```bash
+# 上传文件
+$ ab abconfig_uart
+
+# 进入交互模式
+$ ab --repl
+
+# 运行测试脚本
+# ctrl + r，输入 test\test_uart.py 前边的序号并回车
+```
+
+* `BLE UART`测试方法：参考 [ESP32 BLE - UART](https://gitee.com/walkline/esp32-ble-uart) 说明文档中关于`nRF Connect`的操作说明
+
+	> 默认设备名称：`ble_uart`
+
+* `BLE Config`测试方法：参考 [MicroPython BLE 配网](https://gitee.com/walkline/micropython_ble_config) 说明文档中关于小程序的操作说明
+
+	> 默认设备名称：`ble_config`
 
 ## 参考资料
 
