@@ -1,0 +1,30 @@
+site_name: MicroPython New BLE Library 文档
+site_url: https://micropython-new-ble-library.rtfd.io/
+repo_url: https://gitee.com/walkline/micropython-new-ble-library
+repo_name: Gitee
+copyright: Copyright © 2024 Walkline's Studio
+
+docs_dir: source
+
+nav:
+  - 欢迎使用: index.md
+  - 关于: about.md
+
+  - 输出 PDF: print_page
+
+theme:
+  name: readthedocs
+
+  highlightjs: true
+  hljs_languages:
+    - python
+  locale: zh_CN
+
+markdown_extensions:
+  - smarty
+  - callouts
+  - attr_list
+
+plugins:
+  - search
+  - print-site
