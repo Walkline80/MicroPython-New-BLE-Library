@@ -6,6 +6,16 @@ from .consts import *
 from struct import pack
 
 
+class ADType(object):
+	FLAGS = const(0x01)
+	BIT16_SERVICE_UUID_COMPLETE = const(0x03)
+	BIT32_SERVICE_UUID_COMPLETE = const(0x05)
+	BIT128_SERVICE_UUID_COMPLETE = const(0x07)
+	APPEARANCE_ = const(0x19)
+	MANUFACTURER_SPECIFIC_DATA = const(0xFF)
+	COMPLETE_LOCAL_NAME = const(0x09)
+
+
 class BLETools(object):
 	@staticmethod
 	def generate_advertising_payload(services: list = None, *, name: str = None, appearance: int = 0) -> bytearray:

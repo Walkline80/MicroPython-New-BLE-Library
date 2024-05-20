@@ -8,65 +8,15 @@ from micropython import const
 MAX_PAYLOAD_LENGTH = 31 # bytes
 
 
-class UUIDS(object):
-	# region Services UUIDs
-	# https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/service_uuids.yaml
-	GENERIC_ACCESS = const(0x1800)
-	GENERIC_ATTRIBUTE = const(0x1801)
-	DEVICE_INFORMATION = const(0x180A)
-	BATTERY_SERVICE = const(0x180F)
-	HUMAN_INTERFACE_DEVICE = const(0x1812)
+# Service UUIDs
+# 	https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/service_uuids.yaml
 
-	NORDIC_UART = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
-	# endregion
+# Characteristic UUIDs
+# 	https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/characteristic_uuids.yaml
 
+# Descriptor UUIDs
+# 	https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/descriptors.yaml
 
-	# region Characteristics UUIDs
-	# https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/characteristic_uuids.yaml
-	DEVICE_NAME = const(0x2A00)
-	APPEARANCE = const(0x2A01)
-	PERIPHERAL_PREFERRED_CONNECTION_PARAMETERS = const(0x2A04)
-
-	SERVICE_CHANGED = const(0x2A05)
-
-	MANUFACTURER_NAME_STRING = const(0x2A29)
-	MODEL_NUMBER_STRING = const(0x2A24)
-	SERIAL_NUMBER_STRING = const(0x2A25)
-	HARDWARE_REVISION_STRING = const(0x2A27)
-	FIRMWARE_REVISION_STRING = const(0x2A26)
-	SOFTWARE_REVISION_STRING = const(0x2A28)
-	PNP_ID = const(0x2A50)
-
-	BATTERY_LEVEL = const(0x2A19)
-
-	HID_INFORMATION = const(0x2A4A)
-	BOOT_KEYBOARD_INPUT_REPORT = const(0x2A22)
-	BOOT_KEYBOARD_OUTPUT_REPORT = const(0x2A32)
-	BOOT_MOUSE_INPUT_REPORT = const(0x2A33)
-	REPORT_MAP = const(0x2A4B)
-	REPORT = const(0x2A4D)
-	HID_CONTROL_POINT = const(0x2A4C)
-	PROTOCOL_MODE = const(0x2A4E)
-
-	NORDIC_RX = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
-	NORDIC_TX = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
-	# endregion
-
-
-	# region Descriptors UUIDs
-	# https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/descriptors.yaml
-	REPORT_REFERENCE = const(0x2908)
-	# endregion
-
-
-class ADType(object):
-	FLAGS = const(0x01)
-	BIT16_SERVICE_UUID_COMPLETE = const(0x03)
-	BIT32_SERVICE_UUID_COMPLETE = const(0x05)
-	BIT128_SERVICE_UUID_COMPLETE = const(0x07)
-	APPEARANCE_ = const(0x19)
-	MANUFACTURER_SPECIFIC_DATA = const(0xFF)
-	COMPLETE_LOCAL_NAME = const(0x09)
 
 class IRQ(object):
 	CENTRAL_CONNECT = const(1)
@@ -101,7 +51,7 @@ class IRQ(object):
 	SET_SECRET = const(30)
 	PASSKEY_ACTION = const(31)
 
-class IOCapabilities(object):
+class IOCapability(object):
 	DISPLAY_ONLY = const(0)
 	DISPLAY_YESNO = const(1)
 	KEYBOARD_ONLY = const(2)
