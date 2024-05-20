@@ -63,7 +63,7 @@ def choose_an_option(title, options):
 
 if __name__ == '__main__':
 	options = [
-		'BLE UART, details: https://gitee.com/walkline/esp32-ble-uart',
+		'BLE UART,   details: https://gitee.com/walkline/esp32-ble-uart',
 		'BLE Config, details: https://gitee.com/walkline/micropython_ble_config',
 	]
 

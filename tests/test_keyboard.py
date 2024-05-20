@@ -4,7 +4,6 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import random
 from drivers.button import Button
-import time
 
 
 MODE_ONE_REPORT    = 0
@@ -50,7 +49,7 @@ class KeyboardTest1(object):
 		print(f'[DN] report_id: {self.__last_report_id}, key_index: {self.__last_key_index}, key_code: {self.__last_key_code}')
 
 		key_data[self.__last_key_index] = self.__last_key_code
-		self.__keyboard.send_kb_key_down(key_data, self.__last_report_id)
+		self.__keyboard.send_kb_key(key_data, self.__last_report_id)
 
 	def __button_up_cb(self, pin: int):
 		modifier = 0b00000000
@@ -58,7 +57,7 @@ class KeyboardTest1(object):
 
 		print(f'[UP] report_id: {self.__last_report_id}, key_index: {self.__last_key_index}, key_code: {self.__last_key_code}\n')
 
-		self.__keyboard.send_kb_key_up(key_data, self.__last_report_id)
+		self.__keyboard.send_kb_key(key_data, self.__last_report_id)
 
 	def __button_click_cb(self, pin: int):
 		modifier  = 0b00000000
@@ -69,12 +68,12 @@ class KeyboardTest1(object):
 			for index, key_index in enumerate(range(2, 8)):
 				key_data[key_index] = key_codes[count * 6 + index]
 
-			self.__keyboard.send_kb_key_down(key_data, count)
+			self.__keyboard.send_kb_key(key_data, count)
 
 		key_data  = bytearray([modifier, 0x00]) + bytes(6)
 
 		for count in range(self.__report_count):
-			self.__keyboard.send_kb_key_up(key_data, count)
+			self.__keyboard.send_kb_key(key_data, count)
 
 	def __led_status_cb(self, num_lock, caps_lock, scroll_lock):
 		print("   num_lock:", num_lock)
