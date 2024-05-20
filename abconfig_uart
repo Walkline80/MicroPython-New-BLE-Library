@@ -1,2 +1,4 @@
 ble/
+#ble/profiles/
+ble/profiles/uart.py
 devices/uart/

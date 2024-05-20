@@ -1,3 +1,6 @@
 ble/
+#ble/profiles/
+ble/profiles/generic.py
+ble/profiles/hid.py
 drivers/
 devices/hid/
