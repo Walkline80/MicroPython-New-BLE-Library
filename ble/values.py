@@ -1,6 +1,6 @@
 '''
 Copyright © 2024 Walkline Wang (https://walkline.wang)
-Gitee: https://gitee.com/walkline/micropython-ble-hid-controller
+Gitee: https://gitee.com/walkline/micropython-new-ble-library
 '''
 from struct import pack
 from .tools import BLETools

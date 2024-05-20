@@ -1,4 +1,4 @@
-<h1 align="center">MicroPython BLE HID 控制器</h1>
+<h1 align="center">MicroPython New BLE Library</h1>
 
 <p align="center"><img src="https://img.shields.io/badge/Licence-MIT-green.svg?style=for-the-badge" /></p>
 

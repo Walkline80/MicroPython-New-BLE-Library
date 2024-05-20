@@ -1,6 +1,6 @@
 """
 Copyright © 2024 Walkline Wang (https://walkline.wang)
-Gitee: https://gitee.com/walkline/micropython-ble-hid-controller
+Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import random
 from drivers.button import Button
