@@ -48,10 +48,3 @@ class TX(Characteristic):
 	def __init__(self):
 		super().__init__(UUID(UUID_NORDIC_TX), Flag.NOTIFY)
 # endregion
-
-
-# region Descriptors
-class ClientCC(Descriptor): # ClientCharacteristicConfiguration
-	def __init__(self):
-		super().__init__(UUID(UUID_CLIENT_CC), Flag.READ_WRITE)
-# endregion

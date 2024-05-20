@@ -2,8 +2,9 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
+import bluetooth
 from ble import *
-from .uartprofile import UARTProfile
+from ble.profiles.uart import UARTProfile
 
 
 SSID_PREFIX		= b'ssid_'

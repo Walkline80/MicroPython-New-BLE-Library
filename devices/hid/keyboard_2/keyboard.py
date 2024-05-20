@@ -4,9 +4,12 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import json
 import binascii
+import bluetooth
 from ble import *
 from .reportmap import REPORT_MAP_DATA
-from ..hidprofile import KeyboardProfile
+
+from ble.profiles.generic import *
+from ble.profiles.hid import *
 
 
 def printf(msg, *args, **kwargs):
@@ -18,9 +21,8 @@ class BLEKeyboard104(object):
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
-	def __init__(self, device_name='MP_KB104', led_status_cb: function = None):
+	def __init__(self, device_name: str = 'MP_KB104', led_status_cb: function = None):
 		self.__ble           = bluetooth.BLE()
-		self.__ble_values    = BLEValues()
 		self.__device_name   = device_name
 		self.__led_status_cb = led_status_cb
 		self.__report_count  = 1
@@ -36,7 +38,7 @@ class BLEKeyboard104(object):
 		self.__load_secrets()
 
 		self.__ble.config(gap_name=device_name)
-		self.__ble.config(io=IOCapabilities.NO_INPUT_OUTPUT)
+		self.__ble.config(io=IOCapability.NO_INPUT_OUTPUT)
 		self.__ble.config(bond=True, le_secure=True, mitm=True)
 
 		self.__ble.irq(self.__irq_callback)
@@ -51,6 +53,9 @@ class BLEKeyboard104(object):
 		generic_profile  = GenericProfile()
 		keyboard_profile = KeyboardProfile()
 
+		self.__generic_values = GenericValues()
+		self.__hid_values     = HIDValues()
+
 		# 先由 __handle_reports 接收 reports 和 report_references 的 handle
 		# 然后 __handle_report_references 从 __handle_reports 中提取所需值
 		# 默认第一个用途页包含 2 个 report，第二个用于接收 led 指示灯状态
@@ -63,7 +68,7 @@ class BLEKeyboard104(object):
 
 		adv_payload = BLETools.generate_advertising_payload(
 			generic_profile.get_services_uuid(),
-			appearance=self.__ble_values.generic_access.__appearance,
+			appearance=self.__appearance,
 			name=self.__device_name
 		)
 
@@ -133,14 +138,14 @@ class BLEKeyboard104(object):
 			printf('- report_map:', self.__handle_report_map)
 			printf('- protocol_mode:', self.__handle_protocol_mode)
 
-			self.__ble_values.human_interface_device.report_count = self.__report_count
+			self.__hid_values.human_interface_device.report_count = self.__report_count
 
 			printf(f'- report_0:', self.__handle_reports[0])
 			printf(f'  - report_reference_input:', self.__handle_report_references,
-				self.__ble_values.human_interface_device.report_reference[0])
+				self.__hid_values.human_interface_device.report_reference[0])
 			printf(f'- report_0:', self.__handle_reports[1])
 			printf(f'  - report_reference_led:', self.__handle_report_references_led,
-				self.__ble_values.human_interface_device.report_reference_led)
+				self.__hid_values.human_interface_device.report_reference_led)
 
 		printf('Services Registered')
 
@@ -184,7 +189,7 @@ class BLEKeyboard104(object):
 			# printf(f'GATTS Write [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
 
 			if attr_handle in self.__handle_reports:
-				self.__parse_led_status(self.__read(attr_handle))
+				self.__parse_led_status(bytes(self.__read(attr_handle)))
 		elif event == IRQ.CONNECTION_UPDATE:
 			conn_handle, interval, latency, supervision_timeout, status = data
 
@@ -281,49 +286,53 @@ class BLEKeyboard104(object):
 
 	def __setup_hid_values(self):
 		# GenericAccess values
-		self.__ble_values.generic_access.device_name = self.__device_name
-		self.__ble_values.generic_access.appearance  = self.__appearance
+		self.__generic_values.generic_access.device_name = self.__device_name
+		self.__generic_values.generic_access.appearance  = self.__appearance
 		# self.__ble_values.generic_access.ppcp        = [40, 80, 10, 300]
 
-		self.__write(self.__handle_device_name, self.__ble_values.generic_access.device_name)
-		self.__write(self.__handle_appearance,  self.__ble_values.generic_access.appearance)
-		self.__write(self.__handle_ppcp,        self.__ble_values.generic_access.ppcp)
+		self.__write(self.__handle_device_name, self.__generic_values.generic_access.device_name)
+		self.__write(self.__handle_appearance,  self.__generic_values.generic_access.appearance)
+		self.__write(self.__handle_ppcp,        self.__generic_values.generic_access.ppcp)
 
 
 		# DeviceInformation values
-		# self.__ble_values.device_information.manufacturer_name = 'Walkline Wang'
-		# self.__ble_values.device_information.model_number      = 'MP_KB'
-		# self.__ble_values.device_information.serial_number     = '4e897424-061d-4dd9-a798-454f79b37245'
-		# self.__ble_values.device_information.firmware_revision = 'v0.1'
-		# self.__ble_values.device_information.hardware_revision = 'v0.2'
-		# self.__ble_values.device_information.software_revision = 'v0.3'
-		# self.__ble_values.device_information.pnp_id            = 0x02E5 # 0x02E5: Espressif, 0x0006: Microsoft
+		# self.__hid_values.device_information.manufacturer_name = 'Walkline Wang'
+		# self.__hid_values.device_information.model_number      = 'MP_KB'
+		# self.__hid_values.device_information.serial_number     = '4e897424-061d-4dd9-a798-454f79b37245'
+		# self.__hid_values.device_information.firmware_revision = 'v0.1'
+		# self.__hid_values.device_information.hardware_revision = 'v0.2'
+		# self.__hid_values.device_information.software_revision = 'v0.3'
 
-		self.__write(self.__handle_manufacturer_name, self.__ble_values.device_information.manufacturer_name)
-		self.__write(self.__handle_model_number,      self.__ble_values.device_information.model_number)
-		self.__write(self.__handle_serial_number,     self.__ble_values.device_information.serial_number)
-		self.__write(self.__handle_hardware_revision, self.__ble_values.device_information.hardware_revision)
-		self.__write(self.__handle_firmware_revision, self.__ble_values.device_information.firmware_revision)
-		self.__write(self.__handle_software_revision, self.__ble_values.device_information.software_revision)
-		self.__write(self.__handle_pnp_id,            self.__ble_values.device_information.pnp_id)
+		# pnp_id related
+		# self.__hid_values.device_information.vendor_id_source  = self.__hid_values.device_information.VENDOR_ID_SOURCE_BLUETOOTH
+		# self.__hid_values.device_information.vendor_id         = 0x02E5 # 0x02E5: Espressif, 0x0006: Microsoft
+		# self.__hid_values.device_information.product_id        = 0x0001
+		# self.__hid_values.device_information.product_version   = 0x0001
+
+		self.__write(self.__handle_manufacturer_name, self.__hid_values.device_information.manufacturer_name)
+		self.__write(self.__handle_model_number,      self.__hid_values.device_information.model_number)
+		self.__write(self.__handle_serial_number,     self.__hid_values.device_information.serial_number)
+		self.__write(self.__handle_hardware_revision, self.__hid_values.device_information.hardware_revision)
+		self.__write(self.__handle_firmware_revision, self.__hid_values.device_information.firmware_revision)
+		self.__write(self.__handle_software_revision, self.__hid_values.device_information.software_revision)
+		self.__write(self.__handle_pnp_id,            self.__hid_values.device_information.pnp_id)
 
 
 		# BatteryService value
-		self.__ble_values.battery_service.battery_level = 100
+		self.__hid_values.battery_service.battery_level = 100
 
-		self.__write(self.__handle_battery_level, self.__ble_values.battery_service.battery_level)
+		self.__write(self.__handle_battery_level, self.__hid_values.battery_service.battery_level)
 
 
 		# HumanInterfaceDevice values
-		# self.__ble_values.human_interface_device.hid_information = [0x0111, 0x00, 0b00]
-		# self.__ble_values.human_interface_device.protocol_mode   = 1
-		self.__ble_values.human_interface_device.report_count    = self.__report_count
+		# self.__hid_values.human_interface_device.protocol_mode = self.__hid_values.human_interface_device.PROTOCOL_MODE_REPORT
+		self.__hid_values.human_interface_device.report_count  = self.__report_count
 
-		self.__write(self.__handle_hid_information,       self.__ble_values.human_interface_device.hid_information)
+		self.__write(self.__handle_hid_information,       self.__hid_values.human_interface_device.hid_information)
 		self.__write(self.__handle_report_map,            bytes(REPORT_MAP_DATA))
-		self.__write(self.__handle_protocol_mode,         self.__ble_values.human_interface_device.protocol_mode)
-		self.__write(self.__handle_report_references,     self.__ble_values.human_interface_device.report_reference[0])
-		self.__write(self.__handle_report_references_led, self.__ble_values.human_interface_device.report_reference_led)
+		self.__write(self.__handle_protocol_mode,         self.__hid_values.human_interface_device.protocol_mode)
+		self.__write(self.__handle_report_references,     self.__hid_values.human_interface_device.report_reference[0])
+		self.__write(self.__handle_report_references_led, self.__hid_values.human_interface_device.report_reference_led)
 
 	def __parse_led_status(self, value: bytes):
 		value = int.from_bytes(value, 'little')
@@ -340,8 +349,8 @@ class BLEKeyboard104(object):
 
 		random.seed(random.randint(-2**16, 2**16))
 
-		self.__ble_values.battery_service.battery_level = value or random.randint(1, 80)
-		self.__write(self.__handle_battery_level, self.__ble_values.battery_service.battery_level)
+		self.__hid_values.battery_service.battery_level = value or random.randint(1, 80)
+		self.__write(self.__handle_battery_level, self.__hid_values.battery_service.battery_level)
 
 		for conn_handle in self.__conn_handles:
 			self.__notify(conn_handle, self.__handle_battery_level)
@@ -356,5 +365,5 @@ class BLEKeyboard104(object):
 			self.__notify(conn_handle, self.__handle_reports[report_id])
 
 	@property
-	def report_count(self):
+	def report_count(self) -> int:
 		return self.__report_count

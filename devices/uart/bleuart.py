@@ -2,8 +2,9 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
+import bluetooth
 from ble import *
-from .uartprofile import UARTProfile
+from ble.profiles.uart import *
 
 
 def printf(msg, *args, **kwargs):
@@ -116,7 +117,7 @@ class BLEUART(object):
 		else:
 			printf(f'Uncaught IRQ Event: {event}, Data: {data}')
 
-	def send(self, data):
+	def send(self, data: bytes):
 		'''将数据写入本地缓存，并推送到中心设备'''
 		if self.__conn_handles is None:
 			return
