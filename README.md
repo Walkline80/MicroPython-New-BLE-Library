@@ -52,6 +52,26 @@ $ ab --repl
 
 	> 默认设备名称：`ble_config`
 
+### Current Time Service 测试
+
+准备两块开发板，使用`ab 工具`上传`CTS`所需文件，然后运行`tests/test_cts.py`文件，两块开发板分别运行`Server`模式和`Client`模式。
+
+```bash
+# 上传文件
+$ ab abconfig_cts
+
+# 进入交互模式
+$ ab --repl
+
+# 运行测试脚本
+# ctrl + r，输入 test\test_cts.py 前边的序号并回车
+
+# 一块开发板选择 CTS Server 模式
+# 另一块开发板选择 CTS Client 模式
+```
+
+先运行 CTS Server，再运行 CTS Client，观察交互窗口打印的消息。
+
 ## 参考资料
 
 * `ab 工具`安装及使用说明请访问 [AMPY Batch Tool](https://gitee.com/walkline/a-batch-tool) 查看
