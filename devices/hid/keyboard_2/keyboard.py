@@ -8,8 +8,8 @@ import bluetooth
 from ble import *
 from .reportmap import REPORT_MAP_DATA
 
-from ble.profiles.generic import *
-from ble.profiles.hid import *
+from ble.profiles.generic import GenericProfile, GenericValues
+from ble.profiles.hid import KeyboardProfile, HIDValues
 
 
 def printf(msg, *args, **kwargs):
