@@ -1,5 +1,3 @@
-mkdocs
-mkdocs[i18n]
-markdown-callouts
-mkdocs-glightbox
+mkdocs-material
 mkdocs-print-site-plugin
+jieba

@@ -8,23 +8,70 @@ docs_dir: source
 
 nav:
   - 欢迎使用: index.md
+  - 如何根据规范文件编写设备代码: customized_profile.md
   - 关于: about.md
 
-  - 输出 PDF: print_page
-
 theme:
-  name: readthedocs
+  language: zh
+  name: material
+  favicon: img/favicon.ico
+  logo: img/logo.png
 
-  highlightjs: true
-  hljs_languages:
-    - python
-  locale: zh_CN
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - navigation.top
+    - navigation.footer
+
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
 
 markdown_extensions:
   - smarty
-  - callouts
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
   - attr_list
+  - md_in_html
 
 plugins:
-  - search
-  - print-site
+  - search:
+      separator: '[\s\u200b\-]'
+
+extra:
+    social:
+        - icon: fontawesome/solid/envelope
+          link: mailto:<walkline@163.com>
+
+        - icon: fontawesome/brands/github
+          link: https://github.com/Walkline80
+
+        - icon: fontawesome/brands/qq
+          link: https://jq.qq.com/?_wv=1027&k=xtPoHgwL
+          name: 走线物联
+
+        - icon: fontawesome/brands/qq
+          link: https://jq.qq.com/?_wv=1027&k=yp4FrpWh
+          name: 扇贝物联
