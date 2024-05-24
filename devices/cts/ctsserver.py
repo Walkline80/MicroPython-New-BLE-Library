@@ -4,7 +4,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
 from ble import *
-from ble.profiles.cts import CTSProfile, CTSValues
+from profiles.cts import CTSProfile, CTSValues
 
 
 def printf(msg, *args, **kwargs):
@@ -132,6 +132,8 @@ class CTSServer(object):
 		self.__write(self.__handle_current_time,           self.__cts_values.current_time_service.current_time)
 		self.__write(self.__handle_local_time_information, self.__cts_values.current_time_service.local_time_information)
 
+
+	# region Properties
 	@property
 	def adjust_reason(self) -> int:
 		return self.__cts_values.current_time_service.adjust_reason
@@ -163,3 +165,4 @@ class CTSServer(object):
 	@dst_offset.setter
 	def dst_offset(self, value: int):
 		self.__cts_values.current_time_service.dst_offset = value
+	# endregion

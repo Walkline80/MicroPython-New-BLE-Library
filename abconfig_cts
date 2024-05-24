@@ -1,4 +1,3 @@
 ble/
-#ble/profiles/
-ble/profiles/cts.py
+profiles/cts.py
 devices/cts/

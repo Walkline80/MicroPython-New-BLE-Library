@@ -2,14 +2,11 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
-import json
-import binascii
 import bluetooth
 from ble import *
+from profiles.generic import GenericProfile, GenericValues
+from profiles.hid import KeyboardProfile, HIDValues
 from .reportmap.keyboard1 import REPORT_MAP_DATA
-
-from ble.profiles.generic import GenericProfile, GenericValues
-from ble.profiles.hid import KeyboardProfile, HIDValues
 
 
 def printf(msg, *args, **kwargs):
@@ -34,14 +31,12 @@ class BLEKeyboard104(object):
 		self.__led_status_cb = led_status_cb
 		self.__appearance    = 961 # or (0x00f, 0x01)
 		self.__conn_handles  = set()
+		self.__secrets       = BLETools.load_secrets()
 
 		self.__write    = self.__ble.gatts_write
 		self.__read     = self.__ble.gatts_read
 		self.__notify   = self.__ble.gatts_notify
 		self.__indicate = self.__ble.gatts_indicate
-
-		self.__secrets = {}
-		self.__load_secrets()
 
 		self.__ble.config(gap_name=device_name)
 		self.__ble.config(io=IOCapability.NO_INPUT_OUTPUT)
@@ -238,7 +233,7 @@ class BLEKeyboard104(object):
 		elif event == IRQ.SET_SECRET:
 			result = True
 			sec_type, key, value = data
-			key = sec_type, bytes(key)
+			key   = sec_type, bytes(key)
 			value = bytes(value) if value else None
 
 			if value is None:
@@ -250,7 +245,7 @@ class BLEKeyboard104(object):
 				self.__secrets[key] = value
 
 			if result:
-				self.__save_secrets()
+				BLETools.save_secrets(self.__secrets)
 
 			return result
 		elif event == IRQ.GET_SECRET:
@@ -273,28 +268,6 @@ class BLEKeyboard104(object):
 			printf(f'MTU Exchanged [Handle: {conn_handle}, MTU: {mtu}]')
 		else:
 			printf(f'Uncaught IRQ Event: {event}, Data: {data}')
-
-	def __load_secrets(self):
-		try:
-			with open('secrets.json', 'r') as f:
-				entries = json.load(f)
-				for sec_type, key, value in entries:
-					self.__secrets[sec_type, binascii.a2b_base64(key)] = binascii.a2b_base64(value)
-		except:
-			printf('No secrets available')
-
-		printf('Secrets Loaded')
-
-	def __save_secrets(self):
-		try:
-			with open('secrets.json', 'w') as f:
-				json_secrets = [
-					(sec_type, binascii.b2a_base64(key), binascii.b2a_base64(value))
-					for (sec_type, key), value in self.__secrets.items()
-				]
-				json.dump(json_secrets, f)
-		except:
-			printf('Failed to save secrets')
 
 	def __setup_hid_values(self):
 		# GenericAccess values

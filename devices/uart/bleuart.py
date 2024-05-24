@@ -4,7 +4,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
 from ble import *
-from ble.profiles.uart import UARTProfile
+from profiles.uart import UARTProfile
 
 
 def printf(msg, *args, **kwargs):
