@@ -2,6 +2,8 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
+import json
+import binascii
 from micropython import const
 from struct import pack, unpack
 from bluetooth import UUID
@@ -20,6 +22,7 @@ class ADType(object):
 
 
 class BLETools(object):
+	# region Payload data related
 	@staticmethod
 	def generate_advertising_payload(services: list = None, *, name: str = None, appearance: int = 0) -> bytearray:
 		'''Generate paylaod for advertising and/or scan response'''
@@ -100,6 +103,39 @@ class BLETools(object):
 			i += 1 + payload[i]
 
 		return result
+	# endregion
+
+
+	@staticmethod
+	def load_secrets(filename: str = 'secrets.json') -> dict:
+		secrets = dict()
+
+		try:
+			with open(filename, 'r') as file:
+				entries = json.load(file)
+
+				for sec_type, key, value in entries:
+					secrets[sec_type, binascii.a2b_base64(key)] = binascii.a2b_base64(value)
+		except:
+			pass
+		finally:
+			return secrets
+
+	def save_secrets(secrets: dict, filename: str = 'secrets.json') -> bool:
+		result = False
+
+		try:
+			with open(filename, 'w') as file:
+				json_secrets = [
+					(sec_type, binascii.b2a_base64(key), binascii.b2a_base64(value))
+					for (sec_type, key), value in secrets.items()
+				]
+				json.dump(json_secrets, file)
+			result = True
+		except:
+			pass
+		finally:
+			return result
 
 	@staticmethod
 	def make_appearance(category:int, subcategory:int) -> int:
