@@ -3,7 +3,11 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from bluetooth import UUID
-from ble import *
+
+try:
+	from ble import *
+except ImportError:
+	from ..ble import *
 
 
 # Service UUIDs

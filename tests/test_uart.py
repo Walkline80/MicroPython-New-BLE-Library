@@ -10,7 +10,10 @@ MODE_BLECONFIG = 1
 
 
 def run_bleuart_test():
-	from devices.uart.bleuart import BLEUART
+	try:
+		from devices.uart.bleuart import BLEUART
+	except ImportError:
+		from ..devices.uart.bleuart import BLEUART
 
 	def rx_received_cb(data: bytes):
 		echo = bytes(reversed(data))
@@ -20,7 +23,10 @@ def run_bleuart_test():
 	bleuart = BLEUART(rx_received_cb=rx_received_cb)
 
 def run_bleconfig_test():
-	from devices.uart.bleconfig import BLEConfig
+	try:
+		from devices.uart.bleconfig import BLEConfig
+	except ImportError:
+		from ..devices.uart.bleconfig import BLEConfig
 
 	def rx_received_cb(data: bytes):
 		print(f'received data: {data}')

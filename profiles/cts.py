@@ -6,7 +6,11 @@ from micropython import const
 from struct import pack
 from bluetooth import UUID
 from time import localtime
-from ble import *
+
+try:
+	from ble import *
+except ImportError:
+	from ..ble import *
 
 
 UUID_CURRENT_TIME_SERVICE = const(0x1805)

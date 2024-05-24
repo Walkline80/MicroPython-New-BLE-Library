@@ -153,7 +153,12 @@ class CTSClient(object):
 
 def run_cts_server_test():
 	from machine import RTC
-	from devices.cts.ctsserver import CTSServer
+
+	try:
+		from devices.cts.ctsserver import CTSServer
+	except ImportError:
+		from ..devices.cts.ctsserver import CTSServer
+
 
 	TIMEZONE = 8
 
