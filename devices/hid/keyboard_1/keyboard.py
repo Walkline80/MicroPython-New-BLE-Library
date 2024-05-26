@@ -352,7 +352,7 @@ class BLEKeyboard104(object):
 		for conn_handle in self.__conn_handles:
 			self.__notify(conn_handle, self.__handle_battery_level)
 
-	def send_kb_key(self, key_data: tuple[bytes, bytearray], report_id: int = 0):
+	def send_kb_key(self, key_data: bytes | bytearray, report_id: int = 0):
 		if self.__conn_handles is None:
 			return
 

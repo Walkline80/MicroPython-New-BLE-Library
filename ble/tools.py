@@ -65,16 +65,16 @@ class BLETools(object):
 	@staticmethod
 	def decode_name(payload):
 		n = BLETools.__decode_field(payload, ADType.COMPLETE_LOCAL_NAME)
-		return str(n[0], "utf-8") if n else ""
+		return str(n[0], 'utf-8') if n else ''
 
 	@staticmethod
 	def decode_services(payload):
 		services = []
 
 		for u in BLETools.__decode_field(payload, ADType.BIT16_SERVICE_UUID_COMPLETE):
-			services.append(UUID(unpack("<h", u)[0]))
+			services.append(UUID(unpack('<h', u)[0]))
 		for u in BLETools.__decode_field(payload, ADType.BIT32_SERVICE_UUID_COMPLETE):
-			services.append(UUID(unpack("<d", u)[0]))
+			services.append(UUID(unpack('<d', u)[0]))
 		for u in BLETools.__decode_field(payload, ADType.BIT128_SERVICE_UUID_COMPLETE):
 			services.append(UUID(u))
 

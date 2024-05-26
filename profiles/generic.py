@@ -86,7 +86,7 @@ class GenericValues(object):
 			return pack('<H', self.__appearance)
 
 		@appearance.setter
-		def appearance(self, value: tuple[int, tuple]):
+		def appearance(self, value: int | tuple):
 			if isinstance(value, tuple) and len(value) == 2 and all(isinstance(v, int) for v in value):
 				self.__appearance = BLETools.make_appearance(*value)
 			elif isinstance(value, int):
@@ -97,7 +97,7 @@ class GenericValues(object):
 			return pack('<4H', *self.__ppcp)
 
 		@ppcp.setter
-		def ppcp(self, value: tuple[tuple, list]):
+		def ppcp(self, value: tuple | list):
 			if isinstance(value, (tuple, list)) and len(value) == 4 and all(isinstance(v, int) for v in value):
 				self.__ppcp = value
 		# endregion

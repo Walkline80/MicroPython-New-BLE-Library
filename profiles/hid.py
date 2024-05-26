@@ -273,7 +273,7 @@ class HIDValues(object):
 			return pack('<HBB', *self.__hid_information)
 
 		# @hid_information.setter
-		# def hid_information(self, value: tuple[tuple, list]):
+		# def hid_information(self, value: tuple | list):
 		# 	if isinstance(value, (tuple, list)) and len(value) == 3 and all(isinstance(v, int) for v in value):
 		# 		self.__hid_information = value
 

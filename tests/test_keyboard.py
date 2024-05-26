@@ -79,9 +79,9 @@ class KeyboardTest1(object):
 			self.__keyboard.send_kb_key(key_data, count)
 
 	def __led_status_cb(self, num_lock, caps_lock, scroll_lock):
-		print("   num_lock:", num_lock)
-		print("  caps_lock:", caps_lock)
-		print("scroll_lock:", scroll_lock)
+		print('   num_lock:', num_lock)
+		print('  caps_lock:', caps_lock)
+		print('scroll_lock:', scroll_lock)
 
 
 class KeyboardTest2(object):
@@ -116,9 +116,9 @@ class KeyboardTest2(object):
 		self.__keyboard.send_kb_key(key_data)
 
 	def __led_status_cb(self, num_lock, caps_lock, scroll_lock):
-		print("   num_lock:", num_lock)
-		print("  caps_lock:", caps_lock)
-		print("scroll_lock:", scroll_lock)
+		print('   num_lock:', num_lock)
+		print('  caps_lock:', caps_lock)
+		print('scroll_lock:', scroll_lock)
 
 
 def choose_an_option(title, options):
