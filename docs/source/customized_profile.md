@@ -67,7 +67,7 @@
 我们以 Current Time Service (CTS) 为例开始编写代码。
 
 !!! tip "提示"
-	在开始之前我们需要在`/ble/profiles`目录下新建`cts.py`文件，并导入必要的模块。
+	在开始之前我们需要在`/profiles`目录下新建`cts.py`文件，并导入必要的模块。
 
 ??? quote "View Code"
 
@@ -489,7 +489,8 @@
 	)
 
 	resp_payload = BLETools.generate_advertising_payload(
-		name=device_name
+		name=device_name,
+		for_resp=True
 	)
 
 	self.__ble.gap_advertise(100000, adv_data=adv_payload, resp_data=resp_payload)
@@ -518,7 +519,7 @@
 
 ## 获取完整代码
 
-* cts.py (CTSProfile, CTSValues)：[gitee](https://gitee.com/walkline/micropython-new-ble-library/blob/main/ble/profiles/cts.py) | [github](https://github.com/Walkline80/micropython-new-ble-library/blob/main/ble/profiles/cts.py)
+* cts.py (CTSProfile, CTSValues)：[gitee](https://gitee.com/walkline/micropython-new-ble-library/blob/main/profiles/cts.py) | [github](https://github.com/Walkline80/micropython-new-ble-library/blob/main/profiles/cts.py)
 
 * ctsserver.py (CTSServer)：[gitee](https://gitee.com/walkline/micropython-new-ble-library/blob/main/devices/cts/ctsserver.py) | [github](https://github.com/Walkline80/micropython-new-ble-library/blob/main/devices/cts/ctsserver.py)
 
