@@ -47,7 +47,7 @@ class BLEConfig(object):
 		self.__ble.active(True)
 		printf(f'BLE Activated [{BLETools.decode_mac(self.__ble.config('mac')[1])}]')
 
-		self.__ble.config(addr_mode=2, mtu=256)
+		self.__ble.config(addr_mode=AddressMode.RPA, mtu=256)
 
 		uart_profile = UARTProfile()
 
@@ -59,7 +59,8 @@ class BLEConfig(object):
 		)
 
 		resp_payload = BLETools.generate_advertising_payload(
-			name=device_name
+			name=device_name,
+			for_resp=True
 		)
 
 		assert (len(adv_payload)  <= MAX_PAYLOAD_LENGTH) and\

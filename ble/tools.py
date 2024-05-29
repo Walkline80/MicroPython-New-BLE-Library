@@ -24,7 +24,8 @@ class ADType(object):
 class BLETools(object):
 	# region Payload data related
 	@staticmethod
-	def generate_advertising_payload(services: list = None, *, name: str = None, appearance: int = 0) -> bytearray:
+	def generate_advertising_payload(services: list = None, *,
+			name: str = None, appearance: int = 0, for_resp: bool = False) -> bytearray:
 		'''Generate paylaod for advertising and/or scan response'''
 		payload = bytearray()
 
@@ -32,7 +33,8 @@ class BLETools(object):
 			nonlocal payload
 			payload += pack('BB', len(value) + 1, adv_type) + value
 
-		_append(ADType.FLAGS, pack('B', 0x06))
+		if not for_resp:
+			_append(ADType.FLAGS, pack('B', 0x06))
 
 		if services:
 			for uuid in services:
@@ -81,7 +83,17 @@ class BLETools(object):
 		return services
 
 	@staticmethod
-	def decode_services_data(payload):
+	def decode_manufacturer_data(payload):
+		services = []
+		data = []
+
+		for u in BLETools.__decode_field(payload, ADType.MANUFACTURER_SPECIFIC_DATA):
+			services.append(UUID(u[:2]))
+			data.append(u[2:])
+
+		return services, data
+
+	def decode_service_data(payload):
 		services = []
 		data = []
 

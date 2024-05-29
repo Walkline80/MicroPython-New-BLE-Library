@@ -18,6 +18,19 @@ MAX_PAYLOAD_LENGTH = 31 # bytes
 # 	https://bitbucket.org/bluetooth-SIG/public/src/main/assigned_numbers/uuids/descriptors.yaml
 
 
+class AddressMode(object):
+	PUBLIC = const(0x00) # Use the controller’s public address
+	RANDOM = const(0x01) # Use a generated static address
+	RPA    = const(0x02) # Use resolvable private addresses
+	NRPA   = const(0x03) # Use non-resolvable private addresses
+
+class ADVType(object):
+	IND         = const(0x00) # connectable and scannable undirected advertising
+	DIRECT_IND  = const(0x01) # connectable directed advertising
+	SCAN_IND    = const(0x02) # scannable undirected advertising
+	NONCONN_IND = const(0x03) # non-connectable undirected advertising
+	SCAN_RSP    = const(0x04) # scan response
+
 class IRQ(object):
 	CENTRAL_CONNECT = const(1)
 	CENTRAL_DISCONNECT = const(2)
@@ -52,25 +65,25 @@ class IRQ(object):
 	PASSKEY_ACTION = const(31)
 
 class IOCapability(object):
-	DISPLAY_ONLY = const(0)
-	DISPLAY_YESNO = const(1)
-	KEYBOARD_ONLY = const(2)
-	NO_INPUT_OUTPUT = const(3)
+	DISPLAY_ONLY     = const(0)
+	DISPLAY_YESNO    = const(1)
+	KEYBOARD_ONLY    = const(2)
+	NO_INPUT_OUTPUT  = const(3)
 	KEYBOARD_DISPLAY = const(4)
 
 class PasskeyAction(object):
-	NONE = const(0)
-	INPUT = const(2)
-	DISPLAY = const(3)
+	NONE               = const(0)
+	INPUT              = const(2)
+	DISPLAY            = const(3)
 	NUMERIC_COMPARISON = const(4)
 
 class GATTSErrorCode(object):
-	NO_ERROR = const(0x00)
-	READ_NOT_PERMITTED = const(0x02)
-	WRITE_NOT_PERMITTED = const(0x03)
+	NO_ERROR                    = const(0x00)
+	READ_NOT_PERMITTED          = const(0x02)
+	WRITE_NOT_PERMITTED         = const(0x03)
 	INSUFFICIENT_AUTHENTICATION = const(0x05)
-	INSUFFICIENT_AUTHORIZATION = const(0x08)
-	INSUFFICIENT_ENCRYPTION = const(0x0f)
+	INSUFFICIENT_AUTHORIZATION  = const(0x08)
+	INSUFFICIENT_ENCRYPTION     = const(0x0f)
 
 class Flag(object):
 	BROADCAST = const(0x0001)

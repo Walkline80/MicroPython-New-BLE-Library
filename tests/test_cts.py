@@ -3,7 +3,7 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
-from ble.consts import IRQ
+from ble.consts import AddressMode, IRQ
 from ble.tools import BLETools
 from struct import unpack
 
@@ -66,7 +66,7 @@ class CTSClient(object):
 		self.__ble.active(True)
 		printf(f'BLE Activated [{BLETools.decode_mac(self.__ble.config('mac')[1])}]')
 
-		self.__ble.config(addr_mode=2, mtu=256)
+		self.__ble.config(addr_mode=AddressMode.RPA, mtu=256)
 
 	def __irq_callback(self, event, data):
 		if event == IRQ.PERIPHERAL_CONNECT:
