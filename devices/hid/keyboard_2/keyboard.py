@@ -3,16 +3,9 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
-
-try:
-	from ble import *
-	from profiles.generic import GenericProfile, GenericValues
-	from profiles.hid import KeyboardProfile, HIDValues
-except ImportError:
-	from ....ble import *
-	from ....profiles.generic import GenericProfile, GenericValues
-	from ....profiles.hid import KeyboardProfile, HIDValues
-
+from ble import *
+from profiles.generic import GenericProfile, GenericValues
+from profiles.hid import KeyboardProfile, HIDValues
 from .reportmap import REPORT_MAP_DATA
 
 

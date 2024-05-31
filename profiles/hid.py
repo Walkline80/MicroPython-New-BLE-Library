@@ -5,11 +5,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 from micropython import const
 from struct import pack
 from bluetooth import UUID
-
-try:
-	from ble import *
-except ImportError:
-	from ..ble import *
+from ble import *
 
 
 # Service UUIDs
