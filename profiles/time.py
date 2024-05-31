@@ -6,19 +6,22 @@ from micropython import const
 from struct import pack
 from bluetooth import UUID
 from time import localtime
-
-try:
-	from ble import *
-except ImportError:
-	from ..ble import *
+from ble import *
 
 
+# Profile
+# https://www.bluetooth.com/specifications/specs/time-profile-1-0/
+
+# Service
+# https://www.bluetooth.com/specifications/specs/current-time-service-1-1/
 UUID_CURRENT_TIME_SERVICE = const(0x1805)
+
+# Characteristics
 UUID_CURRENT_TIME = const(0x2A2B)
 UUID_LOCAL_TIME_INFORMATION = const(0x2A0F)
 
 
-class CTSProfile(Profile):
+class TimeProfile(Profile):
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
@@ -35,8 +38,8 @@ class CTSProfile(Profile):
 		)
 
 
-class CTSValues(object):
-	'''生成 CTS 服务相关特征值字节串'''
+class TimeValues(object):
+	'''生成 Time 配置文件相关服务特征值字节串'''
 	def __init__(self):
 		self.current_time_service = self.CurrentTimeService()
 

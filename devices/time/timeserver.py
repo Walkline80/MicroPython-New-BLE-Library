@@ -3,27 +3,22 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
-
-try:
-	from ble import *
-	from profiles.cts import CTSProfile, CTSValues
-except ImportError:
-	from ...ble import *
-	from ...profiles.cts import CTSProfile, CTSValues
+from ble import *
+from profiles.time import TimeProfile, TimeValues
 
 
 def printf(msg, *args, **kwargs):
 	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 
-class CTSServer(object):
-	'''Current Time Service 服务器'''
+class TimeServer(object):
+	'''Time 配置文件服务器'''
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
-	def __init__(self, device_name: str = 'cts-server'):
-		self.__ble            = bluetooth.BLE()
-		self.__conn_handles   = set()
+	def __init__(self, device_name: str = 'time-server'):
+		self.__ble          = bluetooth.BLE()
+		self.__conn_handles = set()
 
 		appearance = 256 # (0x004, 0x00)
 
@@ -42,15 +37,15 @@ class CTSServer(object):
 
 		self.__ble.config(addr_mode=AddressMode.RPA, mtu=256)
 
-		cts_profile = CTSProfile()
+		time_profile = TimeProfile()
 
-		self.__cts_values = CTSValues()
+		self.__time_values = TimeValues()
 
-		self.__register_services(cts_profile.get_services())
-		self.__setup_cts_values()
+		self.__register_services(time_profile.get_services())
+		self.__setup_time_values()
 
 		adv_payload = BLETools.generate_advertising_payload(
-			cts_profile.get_services_uuid(),
+			time_profile.get_services_uuid(),
 			appearance=appearance
 		)
 
@@ -108,10 +103,10 @@ class CTSServer(object):
 			printf(f'GATTS Read Request [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
 
 			if attr_handle == self.__handle_current_time:
-				self.__cts_values.current_time_service.fractions256 = 0
-				self.__write(attr_handle, self.__cts_values.current_time_service.current_time)
+				self.__time_values.current_time_service.fractions256 = 0
+				self.__write(attr_handle, self.__time_values.current_time_service.current_time)
 			elif attr_handle == self.__handle_local_time_information:
-				self.__write(attr_handle, self.__cts_values.current_time_service.local_time_information)
+				self.__write(attr_handle, self.__time_values.current_time_service.local_time_information)
 
 			return GATTSErrorCode.NO_ERROR
 		elif event == IRQ.CONNECTION_UPDATE:
@@ -129,46 +124,46 @@ class CTSServer(object):
 		else:
 			printf(f'Uncaught IRQ Event: {event}, Data: {data}')
 
-	def __setup_cts_values(self):
-		self.__cts_values.current_time_service.adjust_reason = self.__cts_values.current_time_service.ADJUST_REASON_MANUAL
-		self.__cts_values.current_time_service.fractions256  = 0
-		self.__cts_values.current_time_service.time_zone     = 8 * 4 # UTC+8
-		self.__cts_values.current_time_service.dst_offset    = self.__cts_values.current_time_service.DST_OFFSET_STANDARD
+	def __setup_time_values(self):
+		self.__time_values.current_time_service.adjust_reason = self.__time_values.current_time_service.ADJUST_REASON_MANUAL
+		self.__time_values.current_time_service.fractions256  = 0
+		self.__time_values.current_time_service.time_zone     = 8 * 4 # UTC+8
+		self.__time_values.current_time_service.dst_offset    = self.__time_values.current_time_service.DST_OFFSET_STANDARD
 
-		self.__write(self.__handle_current_time,           self.__cts_values.current_time_service.current_time)
-		self.__write(self.__handle_local_time_information, self.__cts_values.current_time_service.local_time_information)
+		self.__write(self.__handle_current_time,           self.__time_values.current_time_service.current_time)
+		self.__write(self.__handle_local_time_information, self.__time_values.current_time_service.local_time_information)
 
 
 	# region Properties
 	@property
 	def adjust_reason(self) -> int:
-		return self.__cts_values.current_time_service.adjust_reason
+		return self.__time_values.current_time_service.adjust_reason
 
 	@adjust_reason.setter
 	def adjust_reason(self, value: int):
-		self.__cts_values.current_time_service.adjust_reason = value
+		self.__time_values.current_time_service.adjust_reason = value
 
 	@property
 	def fractions256(self) -> int:
-		return self.__cts_values.current_time_service.fractions256
+		return self.__time_values.current_time_service.fractions256
 
 	@fractions256.setter
 	def fractions256(self, value: int):
-		self.__cts_values.current_time_service.fractions256 = value
+		self.__time_values.current_time_service.fractions256 = value
 
 	@property
 	def time_zone(self) -> int:
-		return self.__cts_values.current_time_service.time_zone
+		return self.__time_values.current_time_service.time_zone
 
 	@time_zone.setter
 	def time_zone(self, value: int):
-		self.__cts_values.current_time_service.time_zone = value
+		self.__time_values.current_time_service.time_zone = value
 
 	@property
 	def dst_offset(self) -> int:
-		return self.__cts_values.current_time_service.dst_offset
+		return self.__time_values.current_time_service.dst_offset
 
 	@dst_offset.setter
 	def dst_offset(self, value: int):
-		self.__cts_values.current_time_service.dst_offset = value
+		self.__time_values.current_time_service.dst_offset = value
 	# endregion
