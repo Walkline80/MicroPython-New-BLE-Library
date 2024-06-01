@@ -5,11 +5,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 import bluetooth
 from bluetooth import UUID
 from machine import Timer
-
-try:
-	from ble import *
-except ImportError:
-	from ...ble import *
+from ble import *
 
 
 def printf(msg, *args, **kwargs):
@@ -21,11 +17,10 @@ class Device(object):
 		self.addr_type  = data[0]
 		self.addr       = bytes(data[1])
 		self.adv_type   = data[2]
-		self.rssi       = data[3]
+		self.__rssi     = data[3]
 		self.__adv_data = bytes(data[4])
 
 		self.conn_handle   = None
-		self.__name        = None
 		self.__connectable = None
 
 		self.profile = {
@@ -59,7 +54,7 @@ class Device(object):
 
 	@property
 	def name(self) -> str:
-		'''device name or mac address'''
+		'''get device name or mac address'''
 		return BLETools.decode_name(self.__adv_data) or BLETools.decode_mac(self.addr)
 
 	@property
@@ -78,14 +73,14 @@ class DeviceFactory(object):
 		self.__targets = set()
 
 	def append(self, data):
-		addr_type, addr, adv_type, rssi, adv_data = data
+		_, addr, _, _, _ = data
 
 		if addr not in self.__addrs:
 			self.__addrs.append(bytes(addr))
 			self.__devices.append(Device(data))
 
 	def update(self, data):
-		addr_type, addr, adv_type, rssi, adv_data = data
+		_, addr, _, _, adv_data = data
 
 		device = self.find(addr=addr)
 
@@ -100,7 +95,7 @@ class DeviceFactory(object):
 	def count(self):
 		return len(self.__devices)
 
-	def find(self, addr=None) -> Device | None:
+	def find(self, addr: memoryview = None) -> Device | None:
 		if addr:
 			try:
 				index = self.__addrs.index(bytes(addr))
@@ -187,7 +182,7 @@ class Scanner(object):
 
 	def __irq_callback(self, event, data):
 		if event == IRQ.SCAN_RESULT:
-			addr_type, addr, adv_type, rssi, adv_data = data
+			_, addr, adv_type, _, adv_data = data
 
 			if adv_type == ADVType.SCAN_RSP:
 				self.__factory.update(data)
@@ -209,7 +204,7 @@ class Scanner(object):
 				callback=self.__discover_devices_timer_cb
 			)
 		elif event == IRQ.PERIPHERAL_CONNECT:
-			conn_handle, addr_type, addr = data
+			conn_handle, _, addr = data
 			device = self.__factory.find(addr=addr)
 
 			if device:
@@ -230,7 +225,7 @@ class Scanner(object):
 			conn_handle, start_handle, end_handle, uuid = data
 			self.__current_device.profile['services'].update({str(uuid): {'start_handle': start_handle, 'end_handle': end_handle, 'characteristics': {}}})
 		elif event == IRQ.GATTC_SERVICE_DONE:
-			conn_handle, status = data
+			conn_handle, _ = data
 
 			if self.__service_done_cb:
 				self.__service_done_cb(self.__current_device)
@@ -242,7 +237,6 @@ class Scanner(object):
 			conn_handle, end_handle, value_handle, properties, uuid = data
 			self.__current_device.profile['services'][self.__current_service]['characteristics'].update({str(uuid): {'end_handle': end_handle, 'value_handle': value_handle, 'properties': properties, 'descriptors': {}}})
 		elif event == IRQ.GATTC_CHARACTERISTIC_DONE:
-			# conn_handle, status = data
 			self.__discovering_characteristic = True
 			printf('Discovering descriptors')
 		elif event == IRQ.GATTC_DESCRIPTOR_RESULT:
@@ -253,7 +247,7 @@ class Scanner(object):
 			if uuid in self.DESCRIPTORS_UUID:
 				self.__current_device.profile['services'][self.__current_service]['characteristics'][self.__current_characteristic]['descriptors'].update({str(uuid): {'desc_handle': desc_handle}})
 		elif event == IRQ.GATTC_DESCRIPTOR_DONE:
-			conn_handle, status = data
+			conn_handle, _ = data
 			self.__discovering_descriptor = True
 
 	def __get_devices(self):
