@@ -1,4 +1,3 @@
 ble/
 profiles/time.py
-devices/__init__.py
 devices/time/
