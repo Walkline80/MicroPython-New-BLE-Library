@@ -1,5 +1,5 @@
 ble/
 profiles/generic.py
 profiles/hid.py
-drivers/
 devices/hid/
+tests/drivers/button.py
