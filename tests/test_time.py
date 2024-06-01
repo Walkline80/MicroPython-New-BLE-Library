@@ -3,7 +3,7 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
-from ble import BLETools, AddressMode, IRQ
+from ble import BLETools, IRQ
 from struct import unpack
 
 
@@ -50,8 +50,8 @@ class Device(object):
 
 class TimeClient(object):
 	def __init__(self, device_name: str = 'time-client', found_server_cb: function = None):
-		self.__ble = bluetooth.BLE()
-		self.__time_server = None
+		self.__ble             = bluetooth.BLE()
+		self.__time_server     = None
 		self.__found_server_cb = found_server_cb
 
 		self.__write = self.__ble.gattc_write
@@ -65,7 +65,7 @@ class TimeClient(object):
 		self.__ble.active(True)
 		printf(f'BLE Activated [{BLETools.decode_mac(self.__ble.config('mac')[1])}]')
 
-		self.__ble.config(addr_mode=AddressMode.RPA, mtu=256)
+		self.__ble.config(mtu=256)
 
 	def __irq_callback(self, event, data):
 		if event == IRQ.PERIPHERAL_CONNECT:
@@ -139,10 +139,10 @@ class TimeClient(object):
 	def __check(self, adv_data):
 		return BLETools.decode_name(adv_data) == TIME_SERVER_LOCAL_NAME
 
-	def scan(self, senconds=5):
+	def scan(self, seconds=5):
 		self.__time_server = None
-		printf(f'Scaning for {senconds} second(s)...')
-		self.__ble.gap_scan(senconds * 1000, 50000, 50000, True)
+		printf(f'Scaning for {seconds} second(s)...')
+		self.__ble.gap_scan(seconds * 1000, 50000, 50000, True)
 
 	def get_info(self):
 		if self.__time_server and self.__time_server.handle_current_time and self.__time_server.handle_local_time_information:
