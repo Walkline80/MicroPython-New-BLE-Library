@@ -3,7 +3,7 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import random
-from drivers.button import Button
+from tests.drivers.button import Button
 
 
 MODE_ONE_REPORT    = 0
