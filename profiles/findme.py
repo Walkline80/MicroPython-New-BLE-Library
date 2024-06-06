@@ -32,7 +32,7 @@ class FindMeProfile(Profile):
 
 
 class FindMeValues(object):
-	'''生成 FindMe 配置文件相关服务相关特征值字节串'''
+	'''生成 Find Me 配置文件相关服务相关特征值字节串'''
 	def __init__(self):
 		self.immediate_alert_service = self.ImmediateAlertService()
 
@@ -46,19 +46,20 @@ class FindMeValues(object):
 
 
 	class Consts(object):
-		ALERT_LEVEL_NO_ALERT   = 0x00
-		ALERT_LEVEL_MILD_ALERT = 0x01
-		ALERT_LEVEL_HIGH_ALERT = 0x02
-		ALERT_LEVELS = {
-			ALERT_LEVEL_NO_ALERT,
-			ALERT_LEVEL_MILD_ALERT,
-			ALERT_LEVEL_HIGH_ALERT,
-		}
-		ALERT_LEVELS_MAP = {
-			ALERT_LEVEL_NO_ALERT  : 'No Alert',
-			ALERT_LEVEL_MILD_ALERT: 'Mild Alert',
-			ALERT_LEVEL_HIGH_ALERT: 'High Alert',
-		}
+		class AlertLevel(object):
+			NO_ALERT   = 0x00
+			MILD_ALERT = 0x01
+			HIGH_ALERT = 0x02
+			LEVELS = {
+				NO_ALERT,
+				MILD_ALERT,
+				HIGH_ALERT,
+			}
+			LEVELS_MAP = {
+				NO_ALERT  : 'No Alert',
+				MILD_ALERT: 'Mild Alert',
+				HIGH_ALERT: 'High Alert',
+			}
 
 
 	class ImmediateAlertService(object):
@@ -66,7 +67,8 @@ class FindMeValues(object):
 			return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
 		def __init__(self):
-			self.__alert_level = FindMeValues.Consts.ALERT_LEVEL_NO_ALERT
+			self.__alert_level = FindMeValues.Consts.AlertLevel.NO_ALERT
+
 
 		# region Properties
 		@property
@@ -78,7 +80,7 @@ class FindMeValues(object):
 			if isinstance(value, bytes):
 				value = int.from_bytes(value, 'little')
 
-			if isinstance(value, int) and value in FindMeValues.Consts.ALERT_LEVELS:
+			if isinstance(value, int) and value in FindMeValues.Consts.AlertLevel.LEVELS:
 				self.__alert_level = value
 		# endregion
 

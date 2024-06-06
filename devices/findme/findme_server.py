@@ -80,6 +80,7 @@ class FindMeServer(object):
 			self.__ble.gap_advertise(None)
 
 			printf(f'[{BLETools.decode_mac(addr)}] Connected [Handle: {conn_handle}]')
+
 		elif event == IRQ.CENTRAL_DISCONNECT:
 			conn_handle, _, addr, = data
 
@@ -89,10 +90,9 @@ class FindMeServer(object):
 			printf(f'[{BLETools.decode_mac(addr)}] Disconnected [Handle: {conn_handle}]')
 
 			self.__advertise()
-		elif event == IRQ.GATTS_WRITE:
-			conn_handle, attr_handle = data
 
-			printf(f'GATTS Write [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
+		elif event == IRQ.GATTS_WRITE:
+			_, attr_handle = data
 
 			if attr_handle == self.__handle_alert_level:
 				self.__last_alert_level = int.from_bytes(
@@ -101,16 +101,17 @@ class FindMeServer(object):
 
 				if self.__alert_level_cb:
 					self.__alert_level_cb(self.__last_alert_level)
+
 		elif event == IRQ.GATTC_INDICATE:
 			conn_handle, value_handle, data = data
 			printf(f'GATTC Indicate [Handle: {conn_handle}, Value_Handle: {value_handle}, Data: {bytes(data)}]')
+
 		elif event == IRQ.CONNECTION_UPDATE:
-			conn_handle, interval, latency, supervision_timeout, status = data
-			printf(f'Connection Update [Handle: {conn_handle}, Interval: {interval}, Latency: {latency}, Supervision_Timeout: {supervision_timeout}, Status: {status}]')
-		elif event == IRQ.SET_SECRET:
-			return False
+			pass
 		elif event == IRQ.GET_SECRET:
 			return None
+		elif event == IRQ.SET_SECRET:
+			return False
 		else:
 			printf(f'Uncaught IRQ Event: {event}, Data: {data}')
 
