@@ -14,11 +14,6 @@ from ble import *
 
 # Service
 # https://www.bluetooth.com/specifications/specs/current-time-service-1-1/
-UUID_CURRENT_TIME_SERVICE = const(0x1805)
-
-# Characteristics
-UUID_CURRENT_TIME = const(0x2A2B)
-UUID_LOCAL_TIME_INFORMATION = const(0x2A0F)
 
 
 class TimeProfile(Profile):
@@ -43,40 +38,66 @@ class TimeValues(object):
 	def __init__(self):
 		self.current_time_service = self.CurrentTimeService()
 
+
+	class UUIDS(object):
+		# Service
+		CURRENT_TIME_SERVICE = const(0x1805)
+
+		# Characteristics
+		CURRENT_TIME = const(0x2A2B)
+		LOCAL_TIME_INFORMATION = const(0x2A0F)
+
+
+	class Consts(object):
+		class AdjustReason(object):
+			MANUAL   = 0b0001
+			EXTERNAL = 0b0010
+			TIMEZONE = 0b0100
+			DST      = 0b1000
+			REASONS = {
+				MANUAL,
+				EXTERNAL,
+				TIMEZONE,
+				DST,
+			}
+			REASONS_MAP ={
+				MANUAL  : 'Manual Adjustment',
+				EXTERNAL: 'External Adjustment',
+				TIMEZONE: 'Time Zone Adjustment',
+				DST     : 'Daylight Saving Time Adjustment',
+			}
+
+		class DSTOffset(object):
+			STANDARD       = 0
+			HALF_DAYLIGHT  = 2 # (+ 0.5h)
+			DAYLIGHT       = 4 # (+ 1h)
+			DOUBLEDAYLIGHT = 8 # (+ 2h)
+			OFFSETS = {
+				STANDARD,
+				HALF_DAYLIGHT,
+				DAYLIGHT,
+				DOUBLEDAYLIGHT,
+			}
+			OFFSETS_MAP = {
+				STANDARD      : 'Standard Time',
+				HALF_DAYLIGHT : 'Half Daylight Saving Time',
+				DAYLIGHT      : 'Daylight Saving Time',
+				DOUBLEDAYLIGHT: 'Double Daylight Saving Time',
+			}
+
+
 	class CurrentTimeService(object):
-		ADJUST_REASON_MANUAL   = 0b0001
-		ADJUST_REASON_EXTERNAL = 0b0010
-		ADJUST_REASON_TIMEZONE = 0b0100
-		ADJUST_REASON_DST      = 0b1000
-		ADJUST_REASONS = (
-			ADJUST_REASON_MANUAL,
-			ADJUST_REASON_EXTERNAL,
-			ADJUST_REASON_TIMEZONE,
-			ADJUST_REASON_DST,
-		)
-
-		DST_OFFSET_STANDARD       = 0
-		DST_OFFSET_HALF_DAYLIGHT  = 2 # (+ 0.5h)
-		DST_OFFSET_DAYLIGHT       = 4 # (+ 1h)
-		DST_OFFSET_DOUBLEDAYLIGHT = 8 # (+ 2h)
-		DST_OFFSETS = (
-			DST_OFFSET_STANDARD,
-			DST_OFFSET_HALF_DAYLIGHT,
-			DST_OFFSET_DAYLIGHT,
-			DST_OFFSET_DOUBLEDAYLIGHT,
-		)
-
 		def __dir__(self):
 			return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
 		def __init__(self):
 			# current_time related
-			self.__adjust_reason = self.ADJUST_REASON_MANUAL
+			self.__adjust_reason = TimeValues.Consts.AdjustReason.MANUAL
 			self.__fractions256  = 0
 
 			# local_time_information related
-			self.__time_zone  = 8 * 4 # UTC+8
-			self.__dst_offset = self.DST_OFFSET_STANDARD
+			self.__time_zone  = 8.0 # for UTC+8:00, -4.50 for UTC-4:30
+			self.__dst_offset = TimeValues.Consts.DSTOffset.STANDARD
 
 
 		# region Properties
@@ -86,7 +107,7 @@ class TimeValues(object):
 
 		@adjust_reason.setter
 		def adjust_reason(self, value: int):
-			if isinstance(value, int) and value in self.ADJUST_REASONS:
+			if isinstance(value, int) and value in TimeValues.Consts.AdjustReason.REASONS:
 				self.__adjust_reason = value
 
 		@property
@@ -109,8 +130,8 @@ class TimeValues(object):
 			return self.__time_zone
 
 		@time_zone.setter
-		def time_zone(self, value: int):
-			if isinstance(value, int) and -48 <= value <= 56:
+		def time_zone(self, value: float):
+			if isinstance(value, float) and -12.00 <= value <= 14.00 and value % 0.25 == 0.0:
 				self.__time_zone = value
 
 		@property
@@ -119,27 +140,28 @@ class TimeValues(object):
 
 		@dst_offset.setter
 		def dst_offset(self, value: int):
-			if isinstance(value, int) and value in self.DST_OFFSETS:
+			if isinstance(value, int) and value in TimeValues.Consts.DSTOffset.OFFSETS:
 				self.__dst_offset = value
 
 		@property
 		def local_time_information(self) -> bytes:
-			return pack('<bB', self.__time_zone, self.__dst_offset)
+			return pack('<bB', int(self.__time_zone * 4), self.__dst_offset)
+		# endregion
 
 
 # region Service
 class CurrentTimeService(Service):
 	def __init__(self):
-		super().__init__(UUID(UUID_CURRENT_TIME_SERVICE))
+		super().__init__(UUID(TimeValues.UUIDS.CURRENT_TIME_SERVICE))
 # endregion
 
 
 # region Characteristics
 class CurrentTime(Characteristic):
 	def __init__(self):
-		super().__init__(UUID(UUID_CURRENT_TIME), Flag.READ_NOTIFY)
+		super().__init__(UUID(TimeValues.UUIDS.CURRENT_TIME), Flag.READ_NOTIFY)
 
 class LocalTimeInformation(Characteristic):
 	def __init__(self):
-		super().__init__(UUID(UUID_LOCAL_TIME_INFORMATION), Flag.READ)
+		super().__init__(UUID(TimeValues.UUIDS.LOCAL_TIME_INFORMATION), Flag.READ)
 # endregion

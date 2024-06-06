@@ -12,20 +12,14 @@ def printf(msg, *args, **kwargs):
 
 
 class TimeServer(object):
-	'''Time 配置文件服务器'''
+	'''Time Server'''
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
-	def __init__(self, device_name: str = 'time-server'):
+	def __init__(self,
+			device_name: str = 'time-server'):
 		self.__ble          = bluetooth.BLE()
 		self.__conn_handles = set()
-
-		appearance = 256 # (0x004, 0x00)
-
-		self.__write    = self.__ble.gatts_write
-		self.__read     = self.__ble.gatts_read
-		self.__notify   = self.__ble.gatts_notify
-		self.__indicate = self.__ble.gatts_indicate
 
 		self.__ble.config(gap_name=device_name)
 		self.__ble.irq(self.__irq_callback)
@@ -46,7 +40,7 @@ class TimeServer(object):
 
 		adv_payload = BLETools.generate_advertising_payload(
 			time_profile.get_services_uuid(),
-			appearance=appearance
+			appearance=256 # (0x004, 0x00)
 		)
 
 		resp_payload = BLETools.generate_advertising_payload(
@@ -82,14 +76,15 @@ class TimeServer(object):
 
 	def __irq_callback(self, event, data):
 		if event == IRQ.CENTRAL_CONNECT:
-			conn_handle, _, addr, = data # _: addr_type
+			conn_handle, _, addr, = data
 
 			self.__conn_handles.add(conn_handle)
 			self.__ble.gap_advertise(None)
 
 			printf(f'[{BLETools.decode_mac(addr)}] Connected [Handle: {conn_handle}]')
+
 		elif event == IRQ.CENTRAL_DISCONNECT:
-			conn_handle, _, addr, = data # _: addr_type
+			conn_handle, _, addr, = data
 
 			if conn_handle in self.__conn_handles:
 				self.__conn_handles.remove(conn_handle)
@@ -97,41 +92,43 @@ class TimeServer(object):
 			printf(f'[{BLETools.decode_mac(addr)}] Disconnected [Handle: {conn_handle}]')
 
 			self.__advertise()
-		elif event == IRQ.GATTS_READ_REQUEST:
-			conn_handle, attr_handle = data
 
-			printf(f'GATTS Read Request [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
+		elif event == IRQ.GATTS_READ_REQUEST:
+			_, attr_handle = data
 
 			if attr_handle == self.__handle_current_time:
 				self.__time_values.current_time_service.fractions256 = 0
-				self.__write(attr_handle, self.__time_values.current_time_service.current_time)
+				self.__ble.gatts_write(attr_handle,
+					self.__time_values.current_time_service.current_time)
 			elif attr_handle == self.__handle_local_time_information:
-				self.__write(attr_handle, self.__time_values.current_time_service.local_time_information)
+				self.__ble.gatts_write(attr_handle,
+					self.__time_values.current_time_service.local_time_information)
 
 			return GATTSErrorCode.NO_ERROR
-		elif event == IRQ.CONNECTION_UPDATE:
-			conn_handle, interval, latency, supervision_timeout, status = data
 
-			printf(f'Connection Update [Handle: {conn_handle}, Interval: {interval}, Latency: {latency}, Supervision_Timeout: {supervision_timeout}, Status: {status}]')
 		elif event == IRQ.GATTC_INDICATE:
 			conn_handle, value_handle, data = data
-
 			printf(f'GATTC Indicate [Handle: {conn_handle}, Value_Handle: {value_handle}, Data: {bytes(data)}]')
-		elif event == IRQ.SET_SECRET:
-			return False
+
+		elif event == IRQ.CONNECTION_UPDATE:
+			pass
 		elif event == IRQ.GET_SECRET:
 			return None
+		elif event == IRQ.SET_SECRET:
+			return False
 		else:
 			printf(f'Uncaught IRQ Event: {event}, Data: {data}')
 
 	def __setup_time_values(self):
-		self.__time_values.current_time_service.adjust_reason = self.__time_values.current_time_service.ADJUST_REASON_MANUAL
+		self.__time_values.current_time_service.adjust_reason = self.__time_values.Consts.AdjustReason.MANUAL
 		self.__time_values.current_time_service.fractions256  = 0
-		self.__time_values.current_time_service.time_zone     = 8 * 4 # UTC+8
-		self.__time_values.current_time_service.dst_offset    = self.__time_values.current_time_service.DST_OFFSET_STANDARD
+		self.__time_values.current_time_service.time_zone     = 8.0 # UTC+8:00
+		self.__time_values.current_time_service.dst_offset    = self.__time_values.Consts.DSTOffset.STANDARD
 
-		self.__write(self.__handle_current_time,           self.__time_values.current_time_service.current_time)
-		self.__write(self.__handle_local_time_information, self.__time_values.current_time_service.local_time_information)
+		self.__ble.gatts_write(self.__handle_current_time,
+			self.__time_values.current_time_service.current_time)
+		self.__ble.gatts_write(self.__handle_local_time_information,
+			self.__time_values.current_time_service.local_time_information)
 
 
 	# region Properties
