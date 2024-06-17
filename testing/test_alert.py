@@ -3,8 +3,8 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from profiles.alert import AlertNotificationValues
-from tests.utils.utilities import Utilities
-from tests.utils.dispatcher import Dispatcher
+from testing.utils.utilities import Utilities
+from testing.utils.dispatcher import Dispatcher
 
 import random
 random.seed(random.randint(-2**16, 2**16))

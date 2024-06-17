@@ -4,7 +4,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from ble.profile import Profile
 from profiles.hid import *
-from tests.utils.utilities import Utilities
+from testing.utils.utilities import Utilities
 
 
 MODE_MAKE_PROFILE = 0

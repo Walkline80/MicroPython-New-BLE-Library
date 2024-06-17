@@ -8,7 +8,7 @@ Gitee: https://gitee.com/walkline/micropython-drivers
 __version__ = 'v1.2'
 
 from machine import Pin, Timer
-from utime import ticks_ms
+from time import ticks_ms
 
 
 class ButtonException(BaseException):
@@ -184,8 +184,8 @@ def run_test():
 
 	__led = Pin(2, Pin.OUT, value=0)
 
-	from utime import sleep_ms
-	import urandom
+	from time import sleep_ms
+	import random
 
 	def button_hold_cb(pin):
 		global __led
@@ -200,7 +200,7 @@ def run_test():
 		print(f'button {pin} released')
 
 	def button_click_cb(pin):
-		print(f'button {pin} clicked {urandom.randint(0, 65535)}')
+		print(f'button {pin} clicked {random.randint(0, 65535)}')
 
 	def button_press_cb(duration, pin):
 		global __press_counts

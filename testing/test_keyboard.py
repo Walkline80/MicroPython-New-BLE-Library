@@ -4,8 +4,8 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from time import sleep_ms
 from random import randint
-from tests.drivers.button import Button
-from tests.utils.utilities import Utilities
+from testing.drivers.button import Button
+from testing.utils.utilities import Utilities
 
 
 MODE_ONE_REPORT      = 0

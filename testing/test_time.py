@@ -4,8 +4,8 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from machine import RTC
 from profiles.time import TimeValues
-from tests.utils.utilities import Utilities
-from tests.utils.dispatcher import Dispatcher
+from testing.utils.utilities import Utilities
+from testing.utils.dispatcher import Dispatcher
 
 
 MODE_TIME_SERVER = 0

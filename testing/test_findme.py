@@ -4,7 +4,7 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import time
 from profiles.findme import FindMeValues
-from tests.utils.utilities import Utilities
+from testing.utils.utilities import Utilities
 
 import random
 random.seed(random.randint(-2**16, 2**16))
