@@ -1,4 +1,4 @@
 ble/
 profiles/alert.py
 devices/alert/
-tests/utils/
+testing/utils/

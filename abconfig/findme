@@ -1,4 +1,4 @@
 ble/
 profiles/findme.py
 devices/findme/
-tests/utils/utilities.py
+testing/utils/utilities.py
