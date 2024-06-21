@@ -14,14 +14,14 @@ def printf(msg, *args, **kwargs):
 
 class Device(object):
 	def __init__(self, data):
+		# addr_type, addr, adv_type, rssi, adv_data = data
 		self.addr_type  = data[0]
 		self.addr       = bytes(data[1])
 		self.adv_type   = data[2]
-		self.__rssi     = data[3]
+		self.rssi       = data[3]
 		self.__adv_data = bytes(data[4])
 
-		self.conn_handle   = None
-		self.__connectable = None
+		self.conn_handle = None
 
 		self.profile = {
 			'services': {}
@@ -61,10 +61,6 @@ class Device(object):
 	def connectable(self) -> bool:
 		return self.adv_type in (ADVType.IND, ADVType.DIRECT_IND, ADVType.SCAN_RSP) and self.rssi >= -80
 
-	@property
-	def manufacturer_data(self) -> list:
-		return BLETools.decode_manufacturer_data(self.__adv_data)
-
 
 class DeviceFactory(object):
 	def __init__(self):
@@ -79,14 +75,24 @@ class DeviceFactory(object):
 			self.__addrs.append(bytes(addr))
 			self.__devices.append(Device(data))
 
+	def remove(self, data):
+		_, _, addr = data
+
+		if addr in self.__addrs:
+			device = self.find(addr=addr)
+
+			self.__addrs.remove(bytes(addr))
+			self.__devices.remove(device)
+
 	def update(self, data):
-		_, addr, _, _, adv_data = data
+		_, addr, _, rssi, adv_data = data
 
 		device = self.find(addr=addr)
 
 		if device:
 			if adv_data not in device.__adv_data:
 				device.__adv_data += bytes(adv_data)
+				device.rssi = rssi
 
 	def clear(self):
 		self.__addrs.clear()
@@ -168,8 +174,6 @@ class Scanner(object):
 		self.__discovering_characteristic = False
 		self.__discovering_descriptor     = False
 
-		self.__write = self.__ble.gattc_write
-
 		self.__ble.config(gap_name=device_name)
 		self.__ble.irq(self.__irq_callback)
 
@@ -192,6 +196,7 @@ class Scanner(object):
 
 				if self.__scan_timeout == 0:
 					self.__ble.gap_scan(None)
+
 		elif event == IRQ.SCAN_DONE:
 			if self.__scan_done_cb:
 				self.__scan_done_cb(self.__factory.devices())
@@ -203,6 +208,7 @@ class Scanner(object):
 				period=50,
 				callback=self.__discover_devices_timer_cb
 			)
+
 		elif event == IRQ.PERIPHERAL_CONNECT:
 			conn_handle, _, addr = data
 			device = self.__factory.find(addr=addr)
@@ -219,35 +225,51 @@ class Scanner(object):
 
 				printf('Discovering services')
 				self.__ble.gattc_discover_services(conn_handle)
-		elif event == IRQ.PERIPHERAL_DISCONNECT:
-			pass
-		elif event == IRQ.GATTC_SERVICE_RESULT:
-			conn_handle, start_handle, end_handle, uuid = data
-			self.__current_device.profile['services'].update({str(uuid): {'start_handle': start_handle, 'end_handle': end_handle, 'characteristics': {}}})
-		elif event == IRQ.GATTC_SERVICE_DONE:
-			conn_handle, _ = data
 
+		elif event == IRQ.PERIPHERAL_DISCONNECT:
+			_, _, addr = data
+			device = self.__factory.find(addr=addr)
+
+			if device:
+				printf(f'[{device.name}] Disconnected')
+				# self.__factory.remove(data)
+
+		elif event == IRQ.GATTC_SERVICE_RESULT:
+			_, start_handle, end_handle, uuid = data
+
+			self.__current_device.profile['services'].update(
+				{str(uuid): {'start_handle': start_handle, 'end_handle': end_handle, 'characteristics': {}}})
+
+		elif event == IRQ.GATTC_SERVICE_DONE:
 			if self.__service_done_cb:
 				self.__service_done_cb(self.__current_device)
 
 			self.__services = self.__get_services()
 			self.__discovering_characteristic = True
+
 			printf('Discovering characteristics')
+
 		elif event == IRQ.GATTC_CHARACTERISTIC_RESULT:
-			conn_handle, end_handle, value_handle, properties, uuid = data
-			self.__current_device.profile['services'][self.__current_service]['characteristics'].update({str(uuid): {'end_handle': end_handle, 'value_handle': value_handle, 'properties': properties, 'descriptors': {}}})
+			_, end_handle, value_handle, properties, uuid = data
+
+			self.__current_device.profile['services'][self.__current_service]['characteristics'].update(
+				{str(uuid): {'end_handle': end_handle, 'value_handle': value_handle, 'properties': properties, 'descriptors': {}}})
+
 		elif event == IRQ.GATTC_CHARACTERISTIC_DONE:
 			self.__discovering_characteristic = True
+
 			printf('Discovering descriptors')
+
 		elif event == IRQ.GATTC_DESCRIPTOR_RESULT:
-			conn_handle, desc_handle, uuid = data
+			_, desc_handle, uuid = data
 
 			# if UUID(0x2900) <= uuid <= UUID(0x2911):
 			# 	print(uuid)
 			if uuid in self.DESCRIPTORS_UUID:
-				self.__current_device.profile['services'][self.__current_service]['characteristics'][self.__current_characteristic]['descriptors'].update({str(uuid): {'desc_handle': desc_handle}})
+				self.__current_device.profile['services'][self.__current_service]['characteristics'][self.__current_characteristic]['descriptors'].update(
+					{str(uuid): {'desc_handle': desc_handle}})
+
 		elif event == IRQ.GATTC_DESCRIPTOR_DONE:
-			conn_handle, _ = data
 			self.__discovering_descriptor = True
 
 	def __get_devices(self):
@@ -264,6 +286,7 @@ class Scanner(object):
 
 	def __get_characteristics(self):
 		device = self.__current_device
+
 		if device.connectable:
 			for service, s_values in device.profile['services'].items():
 				for characteristic, c_values in s_values['characteristics'].items():
@@ -278,6 +301,7 @@ class Scanner(object):
 
 				self.__current_device = device
 				self.__discovering_device = False
+
 				self.connect(device)
 			except StopIteration:
 				self.__timer.deinit()
@@ -330,21 +354,21 @@ class Scanner(object):
 	def set_targets(self, value: str | bytes | UUID | tuple | list = None):
 		self.__factory.set_targets(value)
 
-	def scan(self, seconds=20):
+	def scan(self, seconds: int = 5):
 		if self.__mode == self.MODE_CENTRAL:
 			return
 
 		self.__factory.clear()
 		self.__scan_timeout = seconds
 
-		printf(f'Scanning...')
+		printf('Scaning', 'forever' if seconds == 0 else f'{seconds} second(s)')
 		self.__ble.gap_scan(seconds * 1000, 50000, 50000, True)
 
 	def connect(self, device:Device):
 		self.__ble.gap_connect(device.addr_type, device.addr)
 
 	def write(self, device:Device, handle:int, data: bytes):
-		self.__write(device.conn_handle, handle, data)
+		self.__ble.gattc_write(device.conn_handle, handle, data)
 
 	def disconnect(self, device:Device):
 		try:
@@ -361,6 +385,7 @@ class Scanner(object):
 		if value in (self.MODE_SCANNER, self.MODE_CENTRAL):
 			self.__mode = value
 
+
 def run_test():
 	def discover_done_cb(devices:list):
 		print()
@@ -368,7 +393,7 @@ def run_test():
 
 		for device in devices:
 			if not device.connectable:
-				printf(f'Device: [{BLETools.decode_mac(device.addr)}], {device.manufacturer_data}')
+				printf(f'Device: [{BLETools.decode_mac(device.addr)}]')
 				continue
 
 			printf(f'Device: [{BLETools.decode_mac(device.addr)}]:')
@@ -404,7 +429,7 @@ def run_test():
 	)
 
 	scanner.set_targets('ble-config')
-	scanner.scan(seconds=10)
+	scanner.scan(seconds=5)
 
 
 if __name__ == '__main__':
