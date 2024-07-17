@@ -7,17 +7,12 @@ from ble import *
 from profiles.time import TimeProfile, TimeValues
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class TimeServer(object):
 	'''Time Server'''
 	def __dir__(self):
 		return [attr for attr in dir(type(self)) if not attr.startswith('_')]
 
-	def __init__(self,
-			device_name: str = 'time-server'):
+	def __init__(self, device_name: str = 'time-server'):
 		self.__ble          = bluetooth.BLE()
 		self.__conn_handles = set()
 

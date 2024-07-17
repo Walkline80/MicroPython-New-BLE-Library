@@ -4,12 +4,8 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
 from struct import unpack
-from ble import BLETools, ADVType, IRQ
+from ble import BLETools, ADVType, IRQ, printf
 from profiles.time import TimeValues as Values
-
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 
 class Device(object):

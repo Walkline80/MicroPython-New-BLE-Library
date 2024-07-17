@@ -8,10 +8,6 @@ from machine import Timer
 from ble import *
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class Device(object):
 	def __init__(self, data):
 		# addr_type, addr, adv_type, rssi, adv_data = data

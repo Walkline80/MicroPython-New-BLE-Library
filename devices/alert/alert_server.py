@@ -8,10 +8,6 @@ from ble import *
 from profiles.alert import AlertNotificationProfile, AlertNotificationValues
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class AlertNotificationServer(object):
 	'''Alert Notification Server'''
 	def __dir__(self):

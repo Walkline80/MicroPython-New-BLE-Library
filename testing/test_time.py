@@ -3,6 +3,7 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from machine import RTC
+from ble.tools import printf
 from profiles.time import TimeValues
 from testing.utils.utilities import Utilities
 from testing.utils.dispatcher import Dispatcher
@@ -15,9 +16,6 @@ TIME_SERVER_LOCAL_NAME = 'time-server'
 
 AdjustReason = TimeValues.Consts.AdjustReason
 DSTOffset    = TimeValues.Consts.DSTOffset
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 def run_time_server_test():
 	from devices.time.time_server import TimeServer

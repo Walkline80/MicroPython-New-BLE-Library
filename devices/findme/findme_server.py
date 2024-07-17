@@ -7,10 +7,6 @@ from ble import *
 from profiles.findme import FindMeProfile
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class FindMeServer(object):
 	'''Find Me Server'''
 	def __dir__(self):

@@ -10,9 +10,6 @@ from profiles.uart import UARTProfile
 SSID_PREFIX		= b'ssid_'
 PASSWORD_PREFIX	= b'pswd_'
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
 
 class BLEConfig(object):
 	'''BLE 配网'''
@@ -28,11 +25,6 @@ class BLEConfig(object):
 
 		self.__ssid     = ''
 		self.__password = ''
-
-		self.__write    = self.__ble.gatts_write
-		self.__read     = self.__ble.gatts_read
-		self.__notify   = self.__ble.gatts_notify
-		self.__indicate = self.__ble.gatts_indicate
 
 		self.__ble.config(gap_name=device_name)
 		self.__ble.irq(self.__irq_callback)
@@ -108,7 +100,7 @@ class BLEConfig(object):
 			# printf(f'GATTS Write [Handle: {conn_handle}, Attr_Handle: {attr_handle}]')
 
 			if attr_handle == self.__handle_rx:
-				data = bytes(self.__read(self.__handle_rx))
+				data = bytes(self.__ble.gatts_read(self.__handle_rx))
 
 				if data.startswith(SSID_PREFIX):
 					self.__ssid = data[len(SSID_PREFIX):].decode('utf-8')

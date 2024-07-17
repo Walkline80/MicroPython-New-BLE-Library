@@ -9,6 +9,10 @@ from struct import pack, unpack
 from bluetooth import UUID
 
 
+def printf(msg, *args, **kwargs):
+	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
+
+
 class ADType(object):
 	FLAGS = const(0x01)
 	BIT16_SERVICE_UUID_COMPLETE = const(0x03)

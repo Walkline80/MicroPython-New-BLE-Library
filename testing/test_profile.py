@@ -2,6 +2,7 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
+from ble.tools import printf
 from ble.profile import Profile
 from profiles.hid import *
 from testing.utils.utilities import Utilities
@@ -9,9 +10,6 @@ from testing.utils.utilities import Utilities
 
 MODE_MAKE_PROFILE = 0
 MODE_ADD_SERVICES = 1
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 def preview(profile: Profile):
 	print('Preview', profile.__qualname__)

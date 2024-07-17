@@ -9,10 +9,6 @@ from profiles.hid import KeyboardProfile, HIDValues
 from .reportmap import REPORT_MAP_DATA
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class BLEKeyboard104(object):
 	'''标准104全键无冲键盘'''
 	def __dir__(self):

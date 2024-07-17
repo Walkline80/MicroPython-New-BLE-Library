@@ -2,6 +2,7 @@
 Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
+from ble.tools import printf
 from profiles.alert import AlertNotificationValues
 from testing.utils.utilities import Utilities
 from testing.utils.dispatcher import Dispatcher
@@ -17,9 +18,6 @@ ALERT_SERVER_LOCAL_NAME = 'alert-server'
 
 AlertCategory = AlertNotificationValues.Consts.AlertCategory
 AlertCommand  = AlertNotificationValues.Consts.AlertCommand
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 def run_alert_server_test():
 	from devices.alert.alert_server import AlertNotificationServer

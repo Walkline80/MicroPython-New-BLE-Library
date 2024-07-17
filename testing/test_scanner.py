@@ -4,7 +4,7 @@ Gitee: https://gitee.com/walkline/micropython-batch-ble-config-device
 """
 import time
 import bluetooth
-from ble.tools import BLETools
+from ble.tools import BLETools, printf
 from testing.utils.utilities import Utilities
 
 import esp
@@ -24,9 +24,6 @@ NORDIC_RX_UUID   = bluetooth.UUID('6E400002-B5A3-F393-E0A9-E50E24DCCA9E')
 NORDIC_TX_UUID   = bluetooth.UUID('6E400003-B5A3-F393-E0A9-E50E24DCCA9E')
 
 handle_rx = handle_tx = None
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 def run_bleconfig_server():
 	from devices.scanner.scanner import Scanner

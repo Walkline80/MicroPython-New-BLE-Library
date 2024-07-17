@@ -4,4 +4,4 @@ Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 from .consts import *
 from .profile import *
-from .tools import BLETools
+from .tools import BLETools, printf

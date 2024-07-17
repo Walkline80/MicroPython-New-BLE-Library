@@ -3,6 +3,7 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import time
+from ble.tools import printf
 from profiles.findme import FindMeValues
 from testing.utils.utilities import Utilities
 
@@ -16,10 +17,6 @@ MODE_FINDME_CLIENT = 1
 FINDME_SERVER_LOCAL_NAME = 'findme-target'
 
 AlertLevel = FindMeValues.Consts.AlertLevel
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
 
 def run_findme_server_test():
 	from devices.findme.findme_server import FindMeServer

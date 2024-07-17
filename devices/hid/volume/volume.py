@@ -9,10 +9,6 @@ from profiles.hid import KeyboardProfile, HIDValues
 from .reportmap import REPORT_MAP_DATA
 
 
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
-
-
 class BLEVolumeKey(object):
 	'''音量控制按键'''
 	REPORT_1_VOL_UP = 1
@@ -37,9 +33,7 @@ class BLEVolumeKey(object):
 		self.__secrets       = BLETools.load_secrets()
 
 		self.__write    = self.__ble.gatts_write
-		self.__read     = self.__ble.gatts_read
 		self.__notify   = self.__ble.gatts_notify
-		self.__indicate = self.__ble.gatts_indicate
 
 		self.__ble.config(gap_name=device_name)
 		self.__ble.config(io=IOCapability.NO_INPUT_OUTPUT)

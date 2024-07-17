@@ -3,12 +3,8 @@ Copyright © 2024 Walkline Wang (https://walkline.wang)
 Gitee: https://gitee.com/walkline/micropython-new-ble-library
 """
 import bluetooth
-from ble import BLETools, ADVType, IRQ
+from ble import BLETools, ADVType, IRQ, printf
 from profiles.findme import FindMeValues as Values
-
-
-def printf(msg, *args, **kwargs):
-	print(f'\033[1;37m[INFO]\033[0m {msg}', *args, **kwargs)
 
 
 class Device(object):
