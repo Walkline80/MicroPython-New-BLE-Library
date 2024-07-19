@@ -2,5 +2,6 @@ ble/
 profiles/generic.py
 profiles/hid.py
 devices/hid/
+#devices/hid/keyboard_3
 testing/drivers/button.py
 testing/utils/utilities.py
